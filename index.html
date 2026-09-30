@@ -26,6 +26,15 @@
   .err{background:#fee2e2;color:#991b1b}
   .info{background:#e0f2fe;color:#075985}
   .hidden{display:none}
+  .tabs{display:flex;gap:6px;margin-bottom:14px}
+  .tabs button{margin:0;padding:10px;font-size:14px;background:#e2e8f0;color:#334155}
+  .tabs button.on{background:#1f4e78;color:#fff}
+  select,textarea{width:100%;padding:14px;font-size:16px;border:1px solid #cbd5e1;border-radius:10px;font-family:inherit}
+  .item{border:1px solid #e2e8f0;border-radius:12px;padding:12px;margin-top:10px;font-size:14px;line-height:1.7}
+  .badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;background:#fef9c3;color:#854d0e}
+  .badge.yes{background:#dcfce7;color:#166534}
+  .badge.no{background:#fee2e2;color:#991b1b}
+  .row{display:flex;gap:8px}.row button{margin-top:8px;padding:10px;font-size:15px}
 </style>
 </head>
 <body>
@@ -46,8 +55,32 @@
     <div class="hello" id="hello"></div>
     <div class="clock" id="clock"></div>
     <div class="date" id="date"></div>
-    <button class="in" id="inBtn">تسجيل حضور</button>
-    <button class="out" id="outBtn">تسجيل انصراف</button>
+    <div class="tabs">
+      <button class="on" data-tab="punchTab">الحضور</button>
+      <button data-tab="reqTab">طلباتي</button>
+      <button data-tab="mgrTab" id="mgrTabBtn" class="hidden">الموافقات</button>
+    </div>
+
+    <div id="punchTab" class="tab">
+      <button class="in" id="inBtn">تسجيل حضور</button>
+      <button class="out" id="outBtn">تسجيل انصراف</button>
+    </div>
+
+    <div id="reqTab" class="tab hidden">
+      <label>نوع الطلب</label>
+      <select id="rType"><option>إجازة</option><option>إذن تأخير</option><option>إذن خروج</option></select>
+      <label>من تاريخ</label><input id="rFrom" type="date">
+      <label>إلى تاريخ (للإجازة)</label><input id="rTo" type="date">
+      <label>السبب</label><textarea id="rReason" rows="2"></textarea>
+      <button class="primary" id="rSend">إرسال الطلب</button>
+      <div id="myList"></div>
+    </div>
+
+    <div id="mgrTab" class="tab hidden">
+      <button class="primary" id="mgrRefresh">تحديث الطلبات المعلّقة</button>
+      <div id="mgrList"></div>
+    </div>
+
     <button class="link" id="logoutBtn">تسجيل خروج من التطبيق</button>
   </div>
 
@@ -106,6 +139,7 @@ function getLocation(){
 }
 
 function openMain(){
+  $("mgrTabBtn").classList.toggle("hidden", session.role !== "Manager");
   $("loginView").classList.add("hidden");
   $("mainView").classList.remove("hidden");
   $("hello").textContent = "أهلًا " + session.name;
@@ -161,6 +195,77 @@ $("logoutBtn").onclick = () => {
   $("empPin").value = "";
   hideMsg();
 };
+
+// التبويبات
+document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x === b));
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("hidden", t.id !== b.dataset.tab));
+  hideMsg();
+  if (b.dataset.tab === "reqTab") loadMine();
+  if (b.dataset.tab === "mgrTab") loadPending();
+});
+
+const esc = t => String(t ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function fmtDate(v){
+  if (!v) return "";
+  const d = new Date(v);
+  return isNaN(d) ? String(v) : d.toLocaleDateString("en-CA");
+}
+function badge(st){
+  const c = st === "موافق" ? "yes" : st === "مرفوض" ? "no" : "";
+  return '<span class="badge ' + c + '">' + esc(st) + '</span>';
+}
+function dates(r){
+  const a = fmtDate(r.FromDate), b = fmtDate(r.ToDate);
+  return a + (b && b !== a ? " ← " + b : "");
+}
+
+$("rSend").onclick = async () => {
+  const from = $("rFrom").value, to = $("rTo").value || from, reason = $("rReason").value.trim();
+  if (!from) return show("اختار التاريخ", "err");
+  if (!reason) return show("اكتب السبب", "err");
+  $("rSend").disabled = true; show("جاري الإرسال...", "info");
+  try {
+    const r = await call("submitRequest", { id: session.id, pin: session.pin, type: $("rType").value, from, to, reason });
+    if (!r.ok) throw new Error(r.error);
+    show("تم إرسال الطلب ✅", "ok");
+    $("rReason").value = ""; loadMine();
+  } catch (e) { show(e.message || "حصل خطأ", "err"); }
+  finally { $("rSend").disabled = false; }
+};
+
+async function loadMine(){
+  try {
+    const r = await call("myRequests", { id: session.id, pin: session.pin });
+    if (!r.ok) throw new Error(r.error);
+    $("myList").innerHTML = r.list.length ? r.list.map(x =>
+      '<div class="item"><b>' + esc(x.Type) + '</b> ' + badge(x.Status) + '<br>' + dates(x) + '<br>' + esc(x.Reason) + '</div>'
+    ).join("") : '<div class="item">مفيش طلبات لسه</div>';
+  } catch (e) { show(e.message || "حصل خطأ", "err"); }
+}
+
+async function loadPending(){
+  show("جاري التحميل...", "info");
+  try {
+    const r = await call("pendingRequests", { id: session.id, pin: session.pin });
+    if (!r.ok) throw new Error(r.error);
+    hideMsg();
+    $("mgrList").innerHTML = r.list.length ? r.list.map(x =>
+      '<div class="item"><b>' + esc(x.EmployeeID) + '</b> - ' + esc(x.Type) + '<br>' + dates(x) + '<br>' + esc(x.Reason) +
+      '<div class="row"><button class="in" onclick="decide(\'' + x.RequestID + '\',\'موافق\')">موافقة</button>' +
+      '<button class="out" onclick="decide(\'' + x.RequestID + '\',\'مرفوض\')">رفض</button></div></div>'
+    ).join("") : '<div class="item">مفيش طلبات معلّقة</div>';
+  } catch (e) { show(e.message || "حصل خطأ", "err"); }
+}
+$("mgrRefresh").onclick = loadPending;
+
+async function decide(requestId, decision){
+  try {
+    const r = await call("decideRequest", { id: session.id, pin: session.pin, requestId, decision });
+    if (!r.ok) throw new Error(r.error);
+    show("تم: " + decision, "ok"); loadPending();
+  } catch (e) { show(e.message || "حصل خطأ", "err"); }
+}
 
 // الساعة والتاريخ
 function tick(){
