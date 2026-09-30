@@ -44,6 +44,12 @@
 <div class="app">
   <h1>نظام الحضور والانصراف</h1>
 
+  <!-- تثبيت التطبيق -->
+  <div class="card hidden" id="installBox" style="margin-bottom:14px;text-align:center">
+    <div id="installText"></div>
+    <button class="in" id="installBtn">تثبيت التطبيق على موبايلك</button>
+  </div>
+
   <!-- شاشة الدخول -->
   <div class="card" id="loginView">
     <label>كود الموظف</label>
@@ -336,6 +342,35 @@ async function loadMissions(){
     ).join("") : '<div class="item">مفيش مأموريات لسه</div>';
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
 }
+
+// ===== تثبيت التطبيق =====
+let deferredPrompt = null;
+const isStandalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const ua = navigator.userAgent;
+const isIOS = /iphone|ipad|ipod/i.test(ua);
+const inApp = /FBAN|FBAV|Instagram|Line\/|; wv\)|WhatsApp|Telegram/i.test(ua);
+function showInstall(text, withBtn){
+  if (isStandalone) return;
+  $("installText").textContent = text;
+  $("installBtn").classList.toggle("hidden", !withBtn);
+  $("installBox").classList.remove("hidden");
+}
+if (!isStandalone) {
+  if (isIOS) showInstall("لتثبيت التطبيق: افتح الرابط في Safari، اضغط زرار المشاركة ثم Add to Home Screen", false);
+  else if (inApp) showInstall("افتح الرابط في متصفح Chrome عشان تقدر تثبّت التطبيق (من القائمة ⋮ اختار Open in Chrome)", false);
+}
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault(); deferredPrompt = e;
+  showInstall("ثبّت التطبيق على موبايلك بضغطة واحدة", true);
+});
+window.addEventListener("appinstalled", () => $("installBox").classList.add("hidden"));
+$("installBtn").onclick = async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  try { await deferredPrompt.userChoice; } catch (e) {}
+  deferredPrompt = null;
+  $("installBox").classList.add("hidden");
+};
 
 // الساعة والتاريخ
 function tick(){
