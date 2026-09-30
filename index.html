@@ -58,6 +58,7 @@
     <div class="tabs">
       <button class="on" data-tab="punchTab">الحضور</button>
       <button data-tab="reqTab">طلباتي</button>
+      <button data-tab="missionTab">مأمورية</button>
       <button data-tab="mgrTab" id="mgrTabBtn" class="hidden">الموافقات</button>
     </div>
 
@@ -74,6 +75,15 @@
       <label>السبب</label><textarea id="rReason" rows="2"></textarea>
       <button class="primary" id="rSend">إرسال الطلب</button>
       <div id="myList"></div>
+    </div>
+
+    <div id="missionTab" class="tab hidden">
+      <div class="item">سجّل المأمورية قبل ما تخرج، واليوم ده هيتحسبلك حضور.</div>
+      <label>تاريخ المأمورية</label><input id="mDate" type="date">
+      <label>اسم اللي كلّفك بالمأمورية</label><input id="mBy" placeholder="مثال: م. أحمد">
+      <label>الجهة أو الغرض (اختياري)</label><textarea id="mDetails" rows="2"></textarea>
+      <button class="primary" id="mSend">تسجيل المأمورية</button>
+      <div id="mList"></div>
     </div>
 
     <div id="mgrTab" class="tab hidden">
@@ -203,6 +213,7 @@ document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
   hideMsg();
   if (b.dataset.tab === "reqTab") loadMine();
   if (b.dataset.tab === "mgrTab") loadPending();
+  if (b.dataset.tab === "missionTab") loadMissions();
 });
 
 const esc = t => String(t ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -264,6 +275,31 @@ async function decide(requestId, decision){
     const r = await call("decideRequest", { id: session.id, pin: session.pin, requestId, decision });
     if (!r.ok) throw new Error(r.error);
     show("تم: " + decision, "ok"); loadPending();
+  } catch (e) { show(e.message || "حصل خطأ", "err"); }
+}
+
+// ===== المأموريات =====
+$("mDate").value = new Date().toLocaleDateString("en-CA");
+$("mSend").onclick = async () => {
+  const date = $("mDate").value, assignedBy = $("mBy").value.trim(), details = $("mDetails").value.trim();
+  if (!date) return show("اختار التاريخ", "err");
+  if (!assignedBy) return show("اكتب اسم اللي كلّفك", "err");
+  $("mSend").disabled = true; show("جاري التسجيل...", "info");
+  try {
+    const r = await call("mission", { id: session.id, pin: session.pin, date, assignedBy, details });
+    if (!r.ok) throw new Error(r.error);
+    show("تم تسجيل المأمورية ✅ واليوم اتحسبلك حضور", "ok");
+    $("mBy").value = ""; $("mDetails").value = ""; loadMissions();
+  } catch (e) { show(e.message || "حصل خطأ", "err"); }
+  finally { $("mSend").disabled = false; }
+};
+async function loadMissions(){
+  try {
+    const r = await call("myMissions", { id: session.id, pin: session.pin });
+    if (!r.ok) throw new Error(r.error);
+    $("mList").innerHTML = r.list.length ? r.list.map(x =>
+      '<div class="item"><b>' + fmtDate(x.Date) + '</b><br>كلّفه: ' + esc(x.AssignedBy) + (x.Details ? '<br>' + esc(x.Details) : '') + '</div>'
+    ).join("") : '<div class="item">مفيش مأموريات لسه</div>';
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
 }
 
