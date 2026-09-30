@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>الحضور والانصراف</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1f4e78">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
   *{box-sizing:border-box}
   body{margin:0;font-family:Arial,Tahoma,sans-serif;background:#f1f5f9;color:#0f172a;min-height:100vh;display:flex;justify-content:center}
@@ -175,11 +178,42 @@ $("loginBtn").onclick = async () => {
   }
 };
 
+// ===== البصمة (بصمة أو قفل شاشة الموبايل) =====
+const REQUIRE_BIOMETRIC = true;
+const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+const unb64 = t => Uint8Array.from(atob(t), c => c.charCodeAt(0));
+async function verifyBio(){
+  if (!REQUIRE_BIOMETRIC) return;
+  if (!window.PublicKeyCredential) throw new Error("موبايلك أو المتصفح مش بيدعم البصمة");
+  const challenge = crypto.getRandomValues(new Uint8Array(32));
+  const key = "cred_" + session.id;
+  const saved = store.get(key);
+  try {
+    if (!saved) {
+      const cred = await navigator.credentials.create({ publicKey: {
+        challenge, rp: { name: "HR App" },
+        user: { id: new TextEncoder().encode(session.id), name: session.id, displayName: session.name },
+        pubKeyCredParams: [{ type: "public-key", alg: -7 }, { type: "public-key", alg: -257 }],
+        authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required", residentKey: "discouraged" },
+        timeout: 60000 } });
+      store.set(key, b64(cred.rawId));
+    } else {
+      await navigator.credentials.get({ publicKey: {
+        challenge, allowCredentials: [{ type: "public-key", id: unb64(saved) }],
+        userVerification: "required", timeout: 60000 } });
+    }
+  } catch (e) {
+    throw new Error("لازم تأكد بالبصمة أو بقفل الشاشة عشان تسجّل. ولو الموبايل مفيهوش بصمة مفعّلة، فعّلها من إعدادات الموبايل");
+  }
+}
+
 async function punch(type){
   const btns = [$("inBtn"), $("outBtn")];
   btns.forEach(b => b.disabled = true);
-  show("جاري تحديد موقعك...", "info");
   try {
+    show("أكّد بالبصمة...", "info");
+    await verifyBio();
+    show("جاري تحديد موقعك...", "info");
     const pos = await getLocation();
     show("جاري التسجيل...", "info");
     const r = await call("punch", { id: session.id, pin: session.pin, type, lat: pos.lat, lng: pos.lng });
