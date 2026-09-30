@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الحضور والانصراف</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Tahoma,sans-serif;background:#f1f5f9;color:#0f172a;min-height:100vh;display:flex;justify-content:center}
+  .app{width:100%;max-width:420px;padding:20px}
+  h1{font-size:22px;text-align:center;margin:10px 0 20px}
+  .card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  label{display:block;margin:12px 0 6px;font-size:14px;color:#475569}
+  input{width:100%;padding:14px;font-size:16px;border:1px solid #cbd5e1;border-radius:10px}
+  button{width:100%;padding:16px;font-size:18px;border:0;border-radius:12px;color:#fff;cursor:pointer;margin-top:14px}
+  button:disabled{opacity:.5}
+  .primary{background:#1f4e78}
+  .in{background:#16a34a}
+  .out{background:#dc2626}
+  .link{background:none;color:#64748b;font-size:14px;margin-top:6px}
+  .hello{text-align:center;font-size:18px;margin-bottom:6px}
+  .clock{text-align:center;font-size:34px;font-weight:bold;margin:6px 0 4px}
+  .date{text-align:center;color:#64748b;margin-bottom:10px}
+  #msg{margin-top:16px;padding:12px;border-radius:10px;text-align:center;display:none;font-size:15px}
+  .ok{background:#dcfce7;color:#166534}
+  .err{background:#fee2e2;color:#991b1b}
+  .info{background:#e0f2fe;color:#075985}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>نظام الحضور والانصراف</h1>
+
+  <!-- شاشة الدخول -->
+  <div class="card" id="loginView">
+    <label>كود الموظف</label>
+    <input id="empId" placeholder="مثال: E001" autocapitalize="characters">
+    <label>الرقم السري</label>
+    <input id="empPin" type="password" inputmode="numeric" placeholder="••••">
+    <button class="primary" id="loginBtn">دخول</button>
+  </div>
+
+  <!-- شاشة التسجيل -->
+  <div class="card hidden" id="mainView">
+    <div class="hello" id="hello"></div>
+    <div class="clock" id="clock"></div>
+    <div class="date" id="date"></div>
+    <button class="in" id="inBtn">تسجيل حضور</button>
+    <button class="out" id="outBtn">تسجيل انصراف</button>
+    <button class="link" id="logoutBtn">تسجيل خروج من التطبيق</button>
+  </div>
+
+  <div id="msg"></div>
+</div>
+
+<script>
+// رابط الباك إند (Apps Script)
+const API = "https://script.google.com/macros/s/AKfycbziR7dPHd0qvABE3y7pvFvYhNMyILCXYC8oYe5hiR6ueNk4n48ocWcMF3ZWXCdaEope/exec";
+
+const $ = id => document.getElementById(id);
+const store = {
+  get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+
+// رقم مميز للجهاز (بيتربط بالموظف أول مرة)
+let device = store.get("device");
+if (!device) {
+  device = "D" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  store.set("device", device);
+}
+
+let session = null;
+
+function show(text, type){
+  const m = $("msg");
+  m.textContent = text;
+  m.className = type;
+  m.style.display = "block";
+}
+function hideMsg(){ $("msg").style.display = "none"; }
+
+async function call(action, data){
+  // text/plain عشان نتجنب مشاكل CORS مع Apps Script
+  const res = await fetch(API, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ action, device, ...data })
+  });
+  return res.json();
+}
+
+function getLocation(){
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) return reject(new Error("المتصفح مش بيدعم تحديد الموقع"));
+    navigator.geolocation.getCurrentPosition(
+      p => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
+      e => reject(new Error(e.code === 1
+        ? "لازم تسمح للتطبيق بالوصول للموقع (Location) من إعدادات المتصفح"
+        : "مقدرتش أحدد موقعك، شغّل الـ GPS وجرب تاني")),
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+    );
+  });
+}
+
+function openMain(){
+  $("loginView").classList.add("hidden");
+  $("mainView").classList.remove("hidden");
+  $("hello").textContent = "أهلًا " + session.name;
+  hideMsg();
+}
+
+$("loginBtn").onclick = async () => {
+  const id = $("empId").value.trim().toUpperCase();
+  const pin = $("empPin").value.trim();
+  if (!id || !pin) return show("اكتب الكود والرقم السري", "err");
+  $("loginBtn").disabled = true;
+  show("جاري الدخول...", "info");
+  try {
+    const r = await call("login", { id, pin });
+    if (!r.ok) throw new Error(r.error);
+    session = { id, pin, name: r.name, role: r.role };
+    store.set("session", JSON.stringify(session));
+    openMain();
+  } catch (e) {
+    show(e.message || "حصل خطأ، جرب تاني", "err");
+  } finally {
+    $("loginBtn").disabled = false;
+  }
+};
+
+async function punch(type){
+  const btns = [$("inBtn"), $("outBtn")];
+  btns.forEach(b => b.disabled = true);
+  show("جاري تحديد موقعك...", "info");
+  try {
+    const pos = await getLocation();
+    show("جاري التسجيل...", "info");
+    const r = await call("punch", { id: session.id, pin: session.pin, type, lat: pos.lat, lng: pos.lng });
+    if (r.ok) {
+      show((type === "In" ? "تم تسجيل الحضور" : "تم تسجيل الانصراف") + " ✅ (بعدك عن الشركة " + r.distance + " متر)", "ok");
+    } else {
+      show((r.error || "فشل التسجيل") + (r.distance !== undefined ? " (بعدك " + r.distance + " متر)" : ""), "err");
+    }
+  } catch (e) {
+    show(e.message || "حصل خطأ، جرب تاني", "err");
+  } finally {
+    btns.forEach(b => b.disabled = false);
+  }
+}
+$("inBtn").onclick = () => punch("In");
+$("outBtn").onclick = () => punch("Out");
+
+$("logoutBtn").onclick = () => {
+  store.del("session");
+  session = null;
+  $("mainView").classList.add("hidden");
+  $("loginView").classList.remove("hidden");
+  $("empPin").value = "";
+  hideMsg();
+};
+
+// الساعة والتاريخ
+function tick(){
+  const d = new Date();
+  $("clock").textContent = d.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" });
+  $("date").textContent = d.toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long" });
+}
+tick(); setInterval(tick, 10000);
+
+// لو كان داخل قبل كده
+try {
+  const saved = JSON.parse(store.get("session") || "null");
+  if (saved) { session = saved; openMain(); }
+} catch (e) {}
+</script>
+</body>
+</html>
