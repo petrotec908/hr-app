@@ -72,7 +72,7 @@
 
     <div id="reqTab" class="tab hidden">
       <label>نوع الطلب</label>
-      <select id="rType"><option>إجازة</option><option>إذن تأخير</option><option>إذن خروج</option></select>
+      <select id="rType"><option>إجازة</option><option>إذن تأخير</option><option>إذن انصراف مبكر</option></select>
       <label>من تاريخ</label><input id="rFrom" type="date">
       <label>إلى تاريخ (للإجازة)</label><input id="rTo" type="date">
       <label>السبب</label><textarea id="rReason" rows="2"></textarea>
@@ -152,7 +152,7 @@ function getLocation(){
 }
 
 function openMain(){
-  $("mgrTabBtn").classList.toggle("hidden", session.role !== "Manager");
+  $("mgrTabBtn").classList.toggle("hidden", !["Manager", "HR"].includes(session.role));
   $("loginView").classList.add("hidden");
   $("mainView").classList.remove("hidden");
   $("hello").textContent = "أهلًا " + session.name;
@@ -284,7 +284,7 @@ async function loadMine(){
     const r = await call("myRequests", { id: session.id, pin: session.pin });
     if (!r.ok) throw new Error(r.error);
     $("myList").innerHTML = r.list.length ? r.list.map(x =>
-      '<div class="item"><b>' + esc(x.Type) + '</b> ' + badge(x.Status) + '<br>' + dates(x) + '<br>' + esc(x.Reason) + '</div>'
+      '<div class="item"><b>' + esc(x.Type) + '</b> ' + badge(x.Status) + '<br>' + dates(x) + (x.AssignedBy ? '<br>كلّفه: ' + esc(x.AssignedBy) : '') + '<br>' + esc(x.Reason) + '</div>'
     ).join("") : '<div class="item">مفيش طلبات لسه</div>';
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
 }
@@ -296,7 +296,7 @@ async function loadPending(){
     if (!r.ok) throw new Error(r.error);
     hideMsg();
     $("mgrList").innerHTML = r.list.length ? r.list.map(x =>
-      '<div class="item"><b>' + esc(x.EmployeeID) + '</b> - ' + esc(x.Type) + '<br>' + dates(x) + '<br>' + esc(x.Reason) +
+      '<div class="item"><b>' + esc(x.EmpName) + '</b> (' + esc(x.EmployeeID) + ') - ' + esc(x.Type) + '<br>' + dates(x) + (x.AssignedBy ? '<br>كلّفه: ' + esc(x.AssignedBy) : '') + (x.ManagerBy ? '<br>وافق المدير: ' + esc(x.ManagerBy) : '') + '<br>' + esc(x.Reason) +
       '<div class="row"><button class="in" onclick="decide(\'' + x.RequestID + '\',\'موافق\')">موافقة</button>' +
       '<button class="out" onclick="decide(\'' + x.RequestID + '\',\'مرفوض\')">رفض</button></div></div>'
     ).join("") : '<div class="item">مفيش طلبات معلّقة</div>';
@@ -312,7 +312,7 @@ async function decide(requestId, decision){
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
 }
 
-// ===== المأموريات =====
+// ===== المأموريات (تسجيل فقط) =====
 $("mDate").value = new Date().toLocaleDateString("en-CA");
 $("mSend").onclick = async () => {
   const date = $("mDate").value, assignedBy = $("mBy").value.trim(), details = $("mDetails").value.trim();
