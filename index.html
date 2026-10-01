@@ -376,7 +376,8 @@ let dash = null, dashKey = "present", dashTimer = null;
 const kinds = [
   ["present", "حاضر", "#dcfce7", "#166534"], ["absent", "غايب", "#fee2e2", "#991b1b"],
   ["mission", "مأمورية", "#e0f2fe", "#075985"], ["leave", "إجازة", "#fef9c3", "#854d0e"],
-  ["late", "متأخر", "#f1f5f9", "#475569"]
+  ["late", "متأخر", "#f1f5f9", "#475569"],
+  ["left", "انصرف", "#ede9fe", "#5b21b6"]
 ];
 function openOwner(){
   $("loginView").classList.add("hidden"); $("mainView").classList.add("hidden");
@@ -400,6 +401,7 @@ function noteOf(k, x){
   if (k === "absent") return "لم يسجّل حضور";
   if (k === "mission") return "كلّفه: " + esc(x.by) + (x.details ? " - " + esc(x.details) : "");
   if (k === "leave") return "إجازة معتمدة";
+  if (k === "left") return "انصرف " + esc(x.time) + (x.inTime ? " (حضر " + esc(x.inTime) + ")" : "");
   return "حضر " + esc(x.time) + (x.late ? " (متأخر)" : x.permit ? " (بإذن)" : "");
 }
 function renderDash(){
