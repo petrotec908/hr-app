@@ -38,10 +38,18 @@
   .badge.yes{background:#dcfce7;color:#166534}
   .badge.no{background:#fee2e2;color:#991b1b}
   .row{display:flex;gap:8px}.row button{margin-top:8px;padding:10px;font-size:15px}
+  .app.wide{max-width:960px}
+  .kgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}
+  .kpi{border-radius:12px;padding:12px 14px;cursor:pointer;border:2px solid transparent}
+  .kpi.on{border-color:#1f4e78}
+  .kpi .l{font-size:14px}.kpi .n{font-size:30px;font-weight:bold;margin-top:4px}
+  .nrow{display:flex;justify-content:space-between;align-items:center;padding:10px 4px;border-bottom:1px solid #e2e8f0;font-size:15px}
+  .nrow:last-child{border-bottom:none}
+  .sub{color:#64748b;font-size:13px}
 </style>
 </head>
 <body>
-<div class="app">
+<div class="app" id="appBox">
   <h1>نظام الحضور والانصراف</h1>
 
   <!-- تثبيت التطبيق -->
@@ -103,6 +111,25 @@
     <button class="link" id="logoutBtn">تسجيل خروج من التطبيق</button>
   </div>
 
+  <!-- شاشة صاحب الشركة (عرض فقط) -->
+  <div class="card hidden" id="ownerView">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <div><div style="font-size:20px;font-weight:bold" id="oHello"></div><div class="sub" id="oSub"></div></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="date" id="oDate" style="width:auto;padding:8px">
+        <button class="primary" id="oRefresh" style="width:auto;margin:0;padding:10px 16px;font-size:14px">تحديث</button>
+      </div>
+    </div>
+    <div class="item hidden" id="oWeekend">النهارده إجازة أسبوعية، مفيش غياب بيتحسب. بيظهر بس اللي سجّل حضور أو مأمورية.</div>
+    <div class="kgrid" id="oKpis"></div>
+    <div class="item" style="margin-top:0">
+      <div style="font-weight:bold" id="oTitle"></div>
+      <div id="oList"></div>
+    </div>
+    <div class="kgrid" id="oStats"></div>
+    <button class="link" id="oLogout">تسجيل خروج</button>
+  </div>
+
   <div id="msg"></div>
 </div>
 
@@ -158,6 +185,7 @@ function getLocation(){
 }
 
 function openMain(){
+  if (session.role === "Owner") return openOwner();
   $("mgrTabBtn").classList.toggle("hidden", !["Manager", "HR"].includes(session.role));
   $("loginView").classList.add("hidden");
   $("mainView").classList.remove("hidden");
@@ -342,6 +370,55 @@ async function loadMissions(){
     ).join("") : '<div class="item">مفيش مأموريات لسه</div>';
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
 }
+
+// ===== شاشة صاحب الشركة =====
+let dash = null, dashKey = "present", dashTimer = null;
+const kinds = [
+  ["present", "حاضر", "#dcfce7", "#166534"], ["absent", "غايب", "#fee2e2", "#991b1b"],
+  ["mission", "مأمورية", "#e0f2fe", "#075985"], ["leave", "إجازة", "#fef9c3", "#854d0e"],
+  ["late", "متأخر", "#f1f5f9", "#475569"]
+];
+function openOwner(){
+  $("loginView").classList.add("hidden"); $("mainView").classList.add("hidden");
+  $("installBox").classList.add("hidden");
+  $("ownerView").classList.remove("hidden"); $("appBox").classList.add("wide");
+  $("oHello").textContent = "أهلًا " + session.name;
+  $("oDate").value = new Date().toLocaleDateString("en-CA");
+  hideMsg(); loadDash();
+  clearInterval(dashTimer);
+  dashTimer = setInterval(() => { if ($("oDate").value === new Date().toLocaleDateString("en-CA")) loadDash(); }, 60000);
+}
+async function loadDash(){
+  try {
+    const r = await call("dashboard", { id: session.id, pin: session.pin, date: $("oDate").value });
+    if (!r.ok) throw new Error(r.error);
+    dash = r; renderDash();
+  } catch (e) { show(e.message || "حصل خطأ", "err"); }
+}
+function pick(k){ dashKey = k; renderDash(); }
+function noteOf(k, x){
+  if (k === "absent") return "لم يسجّل حضور";
+  if (k === "mission") return "كلّفه: " + esc(x.by) + (x.details ? " - " + esc(x.details) : "");
+  if (k === "leave") return "إجازة معتمدة";
+  return "حضر " + esc(x.time) + (x.late ? " (متأخر)" : x.permit ? " (بإذن)" : "");
+}
+function renderDash(){
+  $("oSub").textContent = dash.total + " موظف - عرض فقط - " + dash.day;
+  $("oWeekend").classList.toggle("hidden", !dash.isWeekend);
+  $("oKpis").innerHTML = kinds.map(k =>
+    '<div class="kpi' + (k[0] === dashKey ? ' on' : '') + '" style="background:' + k[2] + ';color:' + k[3] + '" onclick="pick(\'' + k[0] + '\')">' +
+    '<div class="l">' + k[1] + '</div><div class="n">' + dash[k[0]].length + '</div></div>').join("");
+  const kind = kinds.find(k => k[0] === dashKey), list = dash[dashKey];
+  $("oTitle").textContent = "أسماء: " + kind[1] + " (" + list.length + ")";
+  $("oList").innerHTML = list.length ? list.map(x =>
+    '<div class="nrow"><span>' + esc(x.name) + ' <span class="sub">(' + esc(x.id) + ')</span></span><span class="sub">' + noteOf(dashKey, x) + '</span></div>').join("")
+    : '<div class="sub" style="padding:10px 4px">مفيش أسماء</div>';
+  const st = [["طلبات عند المدير المباشر", dash.pendingManager], ["طلبات عند مدير HR", dash.pendingHR], ["محاولات تسجيل مرفوضة", dash.rejected]];
+  $("oStats").innerHTML = st.map(x => '<div class="kpi" style="background:#f1f5f9;cursor:default"><div class="l sub">' + x[0] + '</div><div class="n">' + x[1] + '</div></div>').join("");
+}
+$("oDate").onchange = loadDash;
+$("oRefresh").onclick = loadDash;
+$("oLogout").onclick = () => { store.del("session"); location.reload(); };
 
 // ===== تثبيت التطبيق =====
 let deferredPrompt = null;
