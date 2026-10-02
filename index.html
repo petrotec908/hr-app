@@ -195,6 +195,10 @@
           <input id="rDays" readonly>
           <div class="hint" id="rHint"></div>
         </div>
+        <div id="fTime">
+          <label id="lTime">الساعة</label>
+          <input id="rTime" type="time">
+        </div>
         <label>ملاحظات (اختياري)</label>
         <textarea id="rReason" rows="3" placeholder="اكتب أي ملاحظات إن وجدت"></textarea>
         <button class="primary" id="rSend" style="display:flex;align-items:center;justify-content:center;gap:8px"><span data-ic="send" data-s="20"></span>إرسال الطلب</button>
@@ -555,6 +559,15 @@ const TYPES = [
   { n: "إذن انصراف مبكر", s: "طلب إذن قبل ما تخرج من الشغل", g: "permit", ic: "logout", c: "#10a58f", bg: "#dff6f1" },
   { n: "إذن تأخير", s: "طلب إذن عن تأخير في الحضور", g: "permit", ic: "clock", c: "#6366f1", bg: "#e9eaff" }
 ];
+// الساعة بتتخزن في أول الملاحظات بالشكل [الساعة 10:30 ص]
+function fmtTime(t){
+  const p = t.split(":"), h = Number(p[0]);
+  return ((h % 12) || 12) + ":" + p[1] + (h < 12 ? " ص" : " م");
+}
+function splitReason(r){
+  const m = String(r.Reason || "").match(/^\[الساعة ([^\]]+)\]\s*/);
+  return m ? { time: m[1], note: String(r.Reason).slice(m[0].length) } : { time: "", note: String(r.Reason || "") };
+}
 const typeOf = n => TYPES.find(t => t.n === n) || { n, s: "", g: "permit", ic: "file", c: "#4a6cf7", bg: "#e8ecff" };
 const dsp = v => fmtDate(v).replace(/-/g, "/");
 const isPend = r => r.Status === "بانتظار المدير" || r.Status === "بانتظار HR";
@@ -585,6 +598,9 @@ function newReq(i){
   $("fBal").classList.toggle("hidden", !curType.bal);
   $("fRange").classList.toggle("hidden", !leave);
   $("lFrom").textContent = leave ? "تاريخ البدء" : "التاريخ";
+  $("fTime").classList.toggle("hidden", leave);
+  $("lTime").textContent = curType.n === "إذن تأخير" ? "ساعة الحضور المتوقعة" : "ساعة الانصراف";
+  $("rTime").value = "";
   const today = new Date().toLocaleDateString("en-CA");
   $("rFrom").value = today; $("rTo").value = today; $("rReason").value = "";
   calcDays(); balUI(); go("form");
@@ -617,6 +633,12 @@ $("rSend").onclick = async () => {
   const from = $("rFrom").value, to = leave ? ($("rTo").value || from) : from, reason = $("rReason").value.trim();
   if (!from) return show("اختار التاريخ", "err");
   if (to < from) return show("تاريخ الانتهاء قبل تاريخ البدء", "err");
+  let reasonOut = reason;
+  if (!leave) {
+    const t = $("rTime").value;
+    if (!t) return show("اكتب الساعة", "err");
+    reasonOut = "[الساعة " + fmtTime(t) + "]" + (reason ? " " + reason : "");
+  }
   if (leave) {
     const n = workDays(from, to);
     if (n < 1) return show("الفترة دي كلها إجازة أسبوعية", "err");
@@ -624,7 +646,7 @@ $("rSend").onclick = async () => {
   }
   $("rSend").disabled = true; show("جاري الإرسال...", "info");
   try {
-    const r = await call("submitRequest", { ...me(), type: curType.n, from, to, reason });
+    const r = await call("submitRequest", { ...me(), type: curType.n, from, to, reason: reasonOut });
     if (!r.ok) throw new Error(r.error);
     go("req", "root"); show("تم إرسال الطلب ✅", "ok"); refreshMe();
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
@@ -638,7 +660,8 @@ const inFil = (r, f) => f === "all" || (f === "ok" && r.Status === "موافق")
 function setFilter(k){ reqFilter = k; renderMine(); }
 function rangeTxt(r){
   const a = dsp(r.FromDate), b = dsp(r.ToDate);
-  if (typeOf(r.Type).g !== "leave" || !b || b === a) return a;
+  if (typeOf(r.Type).g !== "leave") { const t = splitReason(r).time; return a + (t ? " الساعة " + t : ""); }
+  if (!b || b === a) return a;
   return "من " + a + " إلى " + b;
 }
 function renderMine(){
@@ -663,7 +686,7 @@ async function loadMine(){
 function openReq(id){
   const r = reqAll.find(x => x.RequestID === id);
   if (!r) return;
-  const t = typeOf(r.Type), leave = t.g === "leave";
+  const t = typeOf(r.Type), leave = t.g === "leave", sp = splitReason(r);
   const no = "#" + String(r.RequestID).replace(/\D/g, "").slice(-6);
   const row = (icn, l, v) => '<div class="drow"><span>' + ic(icn, 20) + l + '</span><b>' + v + '</b></div>';
   const stage = r.Status === "بانتظار المدير" ? "عند المدير المباشر" : r.Status === "بانتظار HR" ? "عند مدير HR" : "";
@@ -675,7 +698,8 @@ function openReq(id){
     row("cal", leave ? "تاريخ البدء" : "التاريخ", dsp(r.FromDate)) +
     (leave ? row("cal", "تاريخ الانتهاء", dsp(r.ToDate || r.FromDate)) : "") +
     (leave && r.Days ? row("cal", "عدد الأيام", esc(r.Days) + " يوم") : "") +
-    row("note", "ملاحظات", r.Reason ? esc(r.Reason) : "لا يوجد") + '</div>' +
+    (!leave && sp.time ? row("clock", "الساعة", esc(sp.time)) : "") +
+    row("note", "ملاحظات", sp.note ? esc(sp.note) : "لا يوجد") + '</div>' +
     (isPend(r) ? '<button class="ghost" onclick="cancelReq(\'' + esc(r.RequestID) + '\')">' + ic("trash", 20) + 'إلغاء الطلب</button>' : "");
   go("detail");
 }
