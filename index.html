@@ -67,6 +67,7 @@
   .req{background:#fff;border-radius:16px;padding:14px;margin-top:10px;box-shadow:0 2px 10px rgba(15,30,61,.05);line-height:1.7}
   .cx{width:auto;background:none;color:var(--red);padding:6px 0;margin-top:4px;font-size:14px;font-weight:600}
   .bigav{width:90px;height:90px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;margin:0 auto 10px}
+  .bigav{overflow:hidden}.bigav img,.avatar img{width:100%;height:100%;object-fit:cover;display:block}
   .prow{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);font-size:15px}.prow:last-child{border:none}
   .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--navy);display:flex;justify-content:space-around;padding:8px 6px 10px;border-radius:20px 20px 0 0;z-index:20}
   .ni{background:none;display:flex;flex-direction:column;align-items:center;gap:3px;color:rgba(255,255,255,.65);font-size:12px;padding:4px 10px;flex:1}
@@ -197,6 +198,11 @@
           <div class="prow"><span class="sub">التليفون</span><b id="pPhone"></b></div>
           <div class="prow"><span class="sub">الرصيد المتاح</span><b id="pBal"></b></div>
         </div>
+        <div style="display:grid;gap:10px;margin-top:12px">
+          <button class="rl" id="photoBtn"><span class="ico b" data-ic="camera"></span><span class="tx"><b>تغيير الصورة الشخصية</b><small>اختار صورة من المعرض أو صوّر</small></span><span data-ic="chev" data-s="20"></span></button>
+          <button class="rl" id="pinBtn"><span class="ico o" data-ic="lock"></span><span class="tx"><b>تغيير الرقم السري</b><small>غيّر الرقم اللي بتدخل بيه</small></span><span data-ic="chev" data-s="20"></span></button>
+        </div>
+        <input type="file" accept="image/*" id="photoIn" class="hidden">
         <button class="out" id="logoutBtn">تسجيل الخروج</button>
       </div>
     </section>
@@ -222,6 +228,17 @@
     <div class="sheetBox">
       <div class="sheetHd"><b>آخر التحديثات على طلباتك</b><button class="x" id="bellClose">إغلاق</button></div>
       <div id="bellList"></div>
+    </div>
+  </div>
+
+  <!-- تغيير الرقم السري -->
+  <div id="pinPanel" class="sheet hidden">
+    <div class="sheetBox">
+      <div class="sheetHd"><b>تغيير الرقم السري</b><button class="x" id="pinClose">إغلاق</button></div>
+      <label>الرقم السري الحالي</label><input id="pOld" type="password" inputmode="numeric">
+      <label>الرقم السري الجديد (4 إلى 8 أرقام)</label><input id="pNew" type="password" inputmode="numeric">
+      <label>تأكيد الرقم الجديد</label><input id="pNew2" type="password" inputmode="numeric">
+      <button class="primary" id="pinSave">حفظ</button>
     </div>
   </div>
 
@@ -265,6 +282,7 @@ if (!device) {
   store.set("device", device);
 }
 let session = null;
+let myPhoto = "";
 
 // الأيقونات
 const I = {
@@ -280,6 +298,8 @@ const I = {
   pin:'<path d="M12 22s7-6 7-12a7 7 0 0 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
   brief:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',
   chev:'<path d="M15 6l-6 6 6 6"/>',
+  camera:'<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>',
+  lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
   shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>'
 };
 function ic(n, s){ return '<svg width="' + (s || 22) + '" height="' + (s || 22) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + I[n] + '</svg>'; }
@@ -357,7 +377,8 @@ function openMain(){
   $("loginView").classList.add("hidden");
   if (session.role === "Owner") return openOwner();
   $("empShell").classList.remove("hidden");
-  fillHeader(); go("home"); refreshMe(); checkBell();
+  myPhoto = store.get("photo_" + session.id) || "";
+  fillHeader(); go("home"); refreshMe(); checkBell(); loadPhoto();
 }
 
 async function refreshMe(){
@@ -375,7 +396,7 @@ function fillHeader(){
   $("greet").textContent = h < 12 ? "صباح الخير" : "مساء الخير";
   $("gname").textContent = session.name;
   $("gjob").textContent = session.jobTitle || "";
-  $("avatar").textContent = (session.name || "?").charAt(0);
+  setAvatars();
   $("gdate").textContent = new Date().toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 function balUI(){
@@ -399,7 +420,7 @@ function go(p){
   if (p === "profile") fillProfile();
 }
 function fillProfile(){
-  $("bigav").textContent = (session.name || "?").charAt(0);
+  setAvatars();
   $("pName").textContent = session.name;
   $("pJob").textContent = session.jobTitle || "";
   $("pId").textContent = session.id;
@@ -579,6 +600,58 @@ $("bellBtn").onclick = () => {
   $("bellDot").classList.add("hidden");
 };
 $("bellClose").onclick = () => $("bellPanel").classList.add("hidden");
+
+// ===== الصورة الشخصية =====
+function setAvatars(){
+  const h = myPhoto ? '<img src="' + myPhoto + '" alt="">' : esc((session.name || "?").charAt(0));
+  $("avatar").innerHTML = h; $("bigav").innerHTML = h;
+}
+async function loadPhoto(){
+  try {
+    const r = await call("getPhoto", me());
+    if (r.ok) { myPhoto = r.photo || ""; store.set("photo_" + session.id, myPhoto); setAvatars(); }
+  } catch (e) {}
+}
+$("photoBtn").onclick = () => $("photoIn").click();
+$("photoIn").onchange = e => {
+  const f = e.target.files[0]; e.target.value = "";
+  if (!f) return;
+  const img = new Image(), url = URL.createObjectURL(f);
+  img.onload = async () => {
+    const S = 200, c = document.createElement("canvas"); c.width = c.height = S;
+    const m = Math.min(img.width, img.height);
+    c.getContext("2d").drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, S, S);
+    URL.revokeObjectURL(url);
+    const data = c.toDataURL("image/jpeg", 0.8);
+    show("جاري حفظ الصورة...", "info");
+    try {
+      const r = await call("savePhoto", { ...me(), photo: data });
+      if (!r.ok) throw new Error(r.error);
+      myPhoto = data; store.set("photo_" + session.id, data); setAvatars();
+      show("تم تغيير الصورة ✅", "ok");
+    } catch (er) { show(er.message || "حصل خطأ", "err"); }
+  };
+  img.onerror = () => show("مقدرتش أفتح الصورة دي", "err");
+  img.src = url;
+};
+
+// ===== تغيير الرقم السري =====
+$("pinBtn").onclick = () => { $("pOld").value = ""; $("pNew").value = ""; $("pNew2").value = ""; $("pinPanel").classList.remove("hidden"); };
+$("pinClose").onclick = () => $("pinPanel").classList.add("hidden");
+$("pinSave").onclick = async () => {
+  const o = $("pOld").value.trim(), n = $("pNew").value.trim(), n2 = $("pNew2").value.trim();
+  if (o !== String(session.pin)) return show("الرقم السري الحالي غلط", "err");
+  if (!/^\d{4,8}$/.test(n)) return show("الرقم الجديد لازم يكون من 4 لـ 8 أرقام", "err");
+  if (n !== n2) return show("الرقمين مش متطابقين", "err");
+  $("pinSave").disabled = true; show("جاري الحفظ...", "info");
+  try {
+    const r = await call("changePin", { ...me(), newPin: n });
+    if (!r.ok) throw new Error(r.error);
+    session.pin = n; store.set("session", JSON.stringify(session));
+    $("pinPanel").classList.add("hidden"); show("تم تغيير الرقم السري ✅", "ok");
+  } catch (e) { show(e.message || "حصل خطأ", "err"); }
+  finally { $("pinSave").disabled = false; }
+};
 
 // ===== شاشة صاحب الشركة =====
 let dash = null, dashKey = "present", dashTimer = null;
