@@ -92,6 +92,27 @@
   .kpi .l{font-size:14px}.kpi .n{font-size:30px;font-weight:bold;margin-top:4px}
   .nrow{display:flex;justify-content:space-between;align-items:center;padding:10px 4px;border-bottom:1px solid var(--line);font-size:15px}
   .nrow:last-child{border-bottom:none}
+
+  /* المرحلة 3: الطلبات */
+  .back{position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;color:#fff;padding:8px;display:flex}
+  .tabs{display:flex;background:#e3e9f5;border-radius:14px;padding:4px;gap:4px;margin:2px 0 6px}
+  .tab{flex:1;background:none;color:var(--muted);font-size:13px;font-weight:600;padding:9px 4px;border-radius:11px}
+  .tab.on{background:var(--navy);color:#fff}
+  .li{display:flex;align-items:center;gap:12px;width:100%;background:#fff;color:var(--ink);padding:13px 14px;border-radius:16px;margin-top:10px;text-align:right;box-shadow:0 2px 10px rgba(15,30,61,.05)}
+  .li .tx{flex:1;min-width:0}.li b{display:block;font-size:15px}.li small{display:block;color:var(--muted);font-size:12px;line-height:1.6}
+  .li .end{display:flex;align-items:center;gap:6px;color:var(--muted);flex:none}
+  .ico.lg{width:54px;height:54px;border-radius:16px}
+  .newReq{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 14px}
+  input[readonly]{background:#f3f6fb;color:var(--ink)}
+  .hint{font-size:12px;color:var(--red);margin-top:6px;min-height:16px}
+  .dhead{display:flex;align-items:center;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+  .dhead .tx{flex:1}.dhead b{font-size:18px;display:block;margin-bottom:4px}
+  .drow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);font-size:15px}
+  .drow:last-child{border:none}
+  .drow span{color:var(--muted);display:flex;align-items:center;gap:8px;flex:none}
+  .drow b{font-weight:600;text-align:left}
+  .ghost{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:#fff;color:var(--navy);border:1.5px solid var(--navy);padding:14px;font-size:16px;font-weight:700;border-radius:14px;margin-top:16px}
+  .empty{background:#fff;border-radius:16px;padding:22px 16px;margin-top:10px;text-align:center;color:var(--muted);font-size:14px;line-height:1.8}
 </style>
 </head>
 <body>
@@ -147,31 +168,52 @@
     <section id="pgReq" class="hidden">
       <div class="pgbar">طلباتي</div>
       <div class="pad">
-        <div class="balance"><span data-ic="cal" data-s="28"></span><div><small>الرصيد المتاح</small><b id="balTxt"></b></div></div>
-        <div class="card">
-          <h3>طلب جديد</h3>
-          <label>نوع الطلب</label>
-          <select id="rType"><option>إجازة اعتيادية</option><option>إجازة عارضة</option><option>إذن تأخير</option><option>إذن انصراف مبكر</option></select>
-          <label>من تاريخ</label><input id="rFrom" type="date">
-          <label>إلى تاريخ (للإجازة)</label><input id="rTo" type="date">
-          <label>ملاحظات</label><textarea id="rReason" rows="2"></textarea>
-          <button class="primary" id="rSend">إرسال الطلب</button>
-        </div>
-        <h3 class="sec">طلباتي السابقة</h3>
+        <button class="primary newReq" style="margin-top:0" onclick="go('types')"><span data-ic="plus" data-s="20"></span>طلب جديد</button>
+        <div class="tabs" id="stTabs"></div>
         <div id="myList"></div>
       </div>
     </section>
 
-    <section id="pgMission" class="hidden">
-      <div class="pgbar">المأمورية</div>
+    <section id="pgTypes" class="hidden">
+      <div class="pgbar">طلب جديد<button class="back" onclick="back()" aria-label="رجوع" data-ic="back" data-s="24"></button></div>
       <div class="pad">
-        <div class="card">
-          <div class="sub">سجّل المأمورية قبل ما تخرج، واليوم ده هيتحسبلك حضور.</div>
-          <label>تاريخ المأمورية</label><input id="mDate" type="date">
-          <label>اسم اللي كلّفك بالمأمورية</label><input id="mBy" placeholder="مثال: م. أحمد">
-          <label>الجهة أو الغرض (اختياري)</label><textarea id="mDetails" rows="2"></textarea>
-          <button class="primary" id="mSend">تسجيل المأمورية</button>
+        <div class="tabs" id="typeTabs"></div>
+        <div id="typeList"></div>
+      </div>
+    </section>
+
+    <section id="pgForm" class="hidden">
+      <div class="pgbar"><span id="fTitle"></span><button class="back" onclick="back()" aria-label="رجوع" data-ic="back" data-s="24"></button></div>
+      <div class="pad">
+        <div class="balance hidden" id="fBal"><span data-ic="cal" data-s="28"></span><div><small>الرصيد المتاح</small><b id="balTxt"></b></div></div>
+        <label id="lFrom">تاريخ البدء</label>
+        <input id="rFrom" type="date">
+        <div id="fRange">
+          <label>تاريخ الانتهاء</label>
+          <input id="rTo" type="date">
+          <label>عدد الأيام</label>
+          <input id="rDays" readonly>
+          <div class="hint" id="rHint"></div>
         </div>
+        <label>ملاحظات (اختياري)</label>
+        <textarea id="rReason" rows="3" placeholder="اكتب أي ملاحظات إن وجدت"></textarea>
+        <button class="primary" id="rSend" style="display:flex;align-items:center;justify-content:center;gap:8px"><span data-ic="send" data-s="20"></span>إرسال الطلب</button>
+      </div>
+    </section>
+
+    <section id="pgDetail" class="hidden">
+      <div class="pgbar">تفاصيل الطلب<button class="back" onclick="back()" aria-label="رجوع" data-ic="back" data-s="24"></button></div>
+      <div class="pad" id="detailBox"></div>
+    </section>
+
+    <section id="pgMission" class="hidden">
+      <div class="pgbar">المأمورية<button class="back" onclick="back()" aria-label="رجوع" data-ic="back" data-s="24"></button></div>
+      <div class="pad">
+        <div class="sub">سجّل المأمورية قبل ما تخرج، واليوم ده هيتحسبلك حضور.</div>
+        <label>تاريخ المأمورية</label><input id="mDate" type="date">
+        <label>اسم اللي كلّفك بالمأمورية</label><input id="mBy" placeholder="مثال: م. أحمد">
+        <label>الجهة أو الغرض (اختياري)</label><textarea id="mDetails" rows="3"></textarea>
+        <button class="primary" id="mSend" style="display:flex;align-items:center;justify-content:center;gap:8px"><span data-ic="send" data-s="20"></span>تسجيل المأمورية</button>
         <h3 class="sec">مأمورياتي</h3>
         <div id="mList"></div>
       </div>
@@ -300,6 +342,14 @@ const I = {
   chev:'<path d="M15 6l-6 6 6 6"/>',
   camera:'<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>',
   lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  back:'<path d="M19 12H5M12 5l-7 7 7 7"/>',
+  trash:'<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v5M14 11v5"/>',
+  send:'<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/>',
+  star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  medic:'<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M12 9v8M8 13h8"/>',
+  hash:'<path d="M5 9h14M5 15h14M10 4L8 20M16 4l-2 16"/>',
+  note:'<path d="M5 4h14v16H5z"/><path d="M9 9h6M9 13h4"/>',
   shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>'
 };
 function ic(n, s){ return '<svg width="' + (s || 22) + '" height="' + (s || 22) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + I[n] + '</svg>'; }
@@ -405,20 +455,26 @@ function balUI(){
 }
 
 // ===== التنقل =====
-const PG = { home: "pgHome", req: "pgReq", mission: "pgMission", approve: "pgApprove", profile: "pgProfile" };
-function go(p){
+const PG = { home: "pgHome", req: "pgReq", types: "pgTypes", form: "pgForm", detail: "pgDetail", mission: "pgMission", approve: "pgApprove", profile: "pgProfile" };
+let cur = null, hist = [];
+function go(p, how){
+  if (how === "root") hist = [];
+  else if (how !== "back" && cur && cur !== p) hist.push(cur);
+  cur = p;
   Object.keys(PG).forEach(k => $(PG[k]).classList.toggle("hidden", k !== p));
   const items = [["home", "الرئيسية", "home"], ["req", "طلباتي", "file"]];
   if (session.role === "Manager" || session.role === "HR") items.push(["approve", "الموافقات", "shield"]);
   items.push(["profile", "الملف الشخصي", "user"]);
-  const act = p === "mission" ? "home" : p;
-  $("nav").innerHTML = items.map(i => '<button class="ni' + (i[0] === act ? ' on' : '') + '" onclick="go(\'' + i[0] + '\')">' + ic(i[2], 24) + '<span>' + i[1] + '</span></button>').join("");
+  const act = p === "mission" ? "home" : (p === "types" || p === "form" || p === "detail") ? "req" : p;
+  $("nav").innerHTML = items.map(i => '<button class="ni' + (i[0] === act ? ' on' : '') + '" onclick="go(\'' + i[0] + '\',\'root\')">' + ic(i[2], 24) + '<span>' + i[1] + '</span></button>').join("");
   hideMsg(); window.scrollTo(0, 0);
   if (p === "req") { loadMine(); balUI(); }
+  if (p === "types") renderTypes();
   if (p === "mission") loadMissions();
   if (p === "approve") loadPending();
   if (p === "profile") fillProfile();
 }
+function back(){ go(hist.pop() || "home", "back"); }
 function fillProfile(){
   setAvatars();
   $("pName").textContent = session.name;
@@ -491,38 +547,144 @@ function showSuccess(type){
 $("okBack").onclick = () => $("okView").classList.add("hidden");
 
 // ===== الطلبات =====
+const WEEKEND = [5, 6]; // الجمعة والسبت
+// bal = بيتخصم من الرصيد، g = leave (إجازة بمدة) أو permit (إذن ليوم واحد)
+const TYPES = [
+  { n: "إجازة اعتيادية", s: "طلب إجازة من رصيدك السنوي", g: "leave", ic: "cal", c: "#4a6cf7", bg: "#e8ecff", bal: true },
+  { n: "إجازة عارضة", s: "إجازة لظرف طارئ، بتتخصم من رصيدك", g: "leave", ic: "clock", c: "#d9534f", bg: "#fdeaea", bal: true },
+  { n: "إذن انصراف مبكر", s: "طلب إذن قبل ما تخرج من الشغل", g: "permit", ic: "logout", c: "#10a58f", bg: "#dff6f1" },
+  { n: "إذن تأخير", s: "طلب إذن عن تأخير في الحضور", g: "permit", ic: "clock", c: "#6366f1", bg: "#e9eaff" }
+];
+const typeOf = n => TYPES.find(t => t.n === n) || { n, s: "", g: "permit", ic: "file", c: "#4a6cf7", bg: "#e8ecff" };
+const dsp = v => fmtDate(v).replace(/-/g, "/");
+const isPend = r => r.Status === "بانتظار المدير" || r.Status === "بانتظار HR";
+const SB = { "بانتظار المدير": ["قيد المراجعة", ""], "بانتظار HR": ["قيد المراجعة", ""], "موافق": ["مقبول", "yes"], "مرفوض": ["مرفوض", "no"], "ملغي": ["ملغي", "gray"] };
+function sbadge(st){ const x = SB[st] || [st, "gray"]; return '<span class="badge ' + x[1] + '">' + esc(x[0]) + '</span>'; }
+function icoBox(t, big){ return '<span class="ico' + (big ? ' lg' : '') + '" style="background:' + t.bg + ';color:' + t.c + '">' + ic(t.ic, big ? 28 : 22) + '</span>'; }
+function tabsHtml(list, active, fn){
+  return list.map(t => '<button class="tab' + (t[0] === active ? ' on' : '') + '" onclick="' + fn + '(\'' + t[0] + '\')">' + t[1] + '</button>').join("");
+}
+
+// اختيار نوع الطلب
+let typeTab = "all";
+function setTypeTab(k){ typeTab = k; renderTypes(); }
+function renderTypes(){
+  $("typeTabs").innerHTML = tabsHtml([["all", "جميع الطلبات"], ["leave", "الإجازات"], ["permit", "الأذونات"]], typeTab, "setTypeTab");
+  $("typeList").innerHTML = TYPES.map((t, i) => ({ t, i })).filter(x => typeTab === "all" || x.t.g === typeTab).map(x =>
+    '<button class="li" onclick="newReq(' + x.i + ')">' + icoBox(x.t) +
+    '<span class="tx"><b>' + esc(x.t.n) + '</b><small>' + esc(x.t.s) + '</small></span>' +
+    '<span class="end">' + ic("chev", 20) + '</span></button>').join("");
+}
+
+// فورم الطلب
+let curType = null;
+function newReq(i){
+  curType = TYPES[i];
+  const leave = curType.g === "leave";
+  $("fTitle").textContent = curType.n;
+  $("fBal").classList.toggle("hidden", !curType.bal);
+  $("fRange").classList.toggle("hidden", !leave);
+  $("lFrom").textContent = leave ? "تاريخ البدء" : "التاريخ";
+  const today = new Date().toLocaleDateString("en-CA");
+  $("rFrom").value = today; $("rTo").value = today; $("rReason").value = "";
+  calcDays(); balUI(); go("form");
+}
+function workDays(a, b){
+  if (!a || !b || b < a) return 0;
+  let n = 0;
+  const d = new Date(a + "T12:00:00"), e = new Date(b + "T12:00:00");
+  for (let i = 0; i < 366 && d <= e; i++) {
+    if (WEEKEND.indexOf(d.getDay()) === -1) n++;
+    d.setDate(d.getDate() + 1);
+  }
+  return n;
+}
+function calcDays(){
+  const a = $("rFrom").value, b = $("rTo").value;
+  const n = workDays(a, b);
+  $("rDays").value = a && b ? n : "";
+  let h = "";
+  if (a && b && b < a) h = "تاريخ الانتهاء قبل تاريخ البدء";
+  else if (a && b && n === 0) h = "الفترة دي كلها إجازة أسبوعية";
+  else if (curType && curType.bal && session.available != null && n > session.available) h = "الرصيد المتاح " + session.available + " يوم بس";
+  $("rHint").textContent = h;
+}
+$("rFrom").onchange = () => { if (!$("rTo").value || $("rTo").value < $("rFrom").value) $("rTo").value = $("rFrom").value; calcDays(); };
+$("rTo").onchange = calcDays;
+
 $("rSend").onclick = async () => {
-  const from = $("rFrom").value, to = $("rTo").value || from, reason = $("rReason").value.trim();
+  const leave = curType.g === "leave";
+  const from = $("rFrom").value, to = leave ? ($("rTo").value || from) : from, reason = $("rReason").value.trim();
   if (!from) return show("اختار التاريخ", "err");
+  if (to < from) return show("تاريخ الانتهاء قبل تاريخ البدء", "err");
+  if (leave) {
+    const n = workDays(from, to);
+    if (n < 1) return show("الفترة دي كلها إجازة أسبوعية", "err");
+    if (curType.bal && session.available != null && n > session.available) return show("رصيدك المتاح " + session.available + " يوم بس", "err");
+  }
   $("rSend").disabled = true; show("جاري الإرسال...", "info");
   try {
-    const r = await call("submitRequest", { ...me(), type: $("rType").value, from, to, reason });
+    const r = await call("submitRequest", { ...me(), type: curType.n, from, to, reason });
     if (!r.ok) throw new Error(r.error);
-    show("تم إرسال الطلب ✅", "ok");
-    $("rReason").value = ""; loadMine(); refreshMe();
+    go("req", "root"); show("تم إرسال الطلب ✅", "ok"); refreshMe();
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
   finally { $("rSend").disabled = false; }
 };
 
+// قايمة طلباتي
+let reqAll = [], reqFilter = "all";
+const FIL = [["all", "الكل"], ["ok", "مقبولة"], ["pend", "قيد المراجعة"], ["no", "مرفوضة"]];
+const inFil = (r, f) => f === "all" || (f === "ok" && r.Status === "موافق") || (f === "pend" && isPend(r)) || (f === "no" && r.Status === "مرفوض");
+function setFilter(k){ reqFilter = k; renderMine(); }
+function rangeTxt(r){
+  const a = dsp(r.FromDate), b = dsp(r.ToDate);
+  if (typeOf(r.Type).g !== "leave" || !b || b === a) return a;
+  return "من " + a + " إلى " + b;
+}
+function renderMine(){
+  $("stTabs").innerHTML = tabsHtml(FIL, reqFilter, "setFilter");
+  const list = reqAll.filter(r => inFil(r, reqFilter));
+  $("myList").innerHTML = list.length ? list.map(x => {
+    const t = typeOf(x.Type);
+    return '<button class="li" onclick="openReq(\'' + esc(x.RequestID) + '\')">' + icoBox(t) +
+      '<span class="tx"><b>' + esc(x.Type) + '</b><small>' + rangeTxt(x) + (x.Days ? ' (' + esc(x.Days) + ' يوم)' : '') + '</small></span>' +
+      '<span class="end">' + sbadge(x.Status) + ic("chev", 18) + '</span></button>';
+  }).join("") : '<div class="empty">' + (reqAll.length ? "مفيش طلبات في القسم ده" : "لسه مفيش طلبات. اضغط «طلب جديد» عشان تقدّم أول طلب") + '</div>';
+}
 async function loadMine(){
   try {
     const r = await call("myRequests", me());
     if (!r.ok) throw new Error(r.error);
-    $("myList").innerHTML = r.list.length ? r.list.map(x => {
-      const pending = x.Status === "بانتظار المدير" || x.Status === "بانتظار HR";
-      return '<div class="req"><b>' + esc(x.Type) + '</b> ' + badge(x.Status) +
-        '<div class="sub">' + dates(x) + (x.Days ? ' - ' + esc(x.Days) + ' يوم' : '') + '</div>' +
-        (x.Reason ? '<div class="sub">' + esc(x.Reason) + '</div>' : '') +
-        (pending ? '<button class="cx" onclick="cancelReq(\'' + x.RequestID + '\')">إلغاء الطلب</button>' : '') + '</div>';
-    }).join("") : '<div class="item">مفيش طلبات لسه</div>';
+    reqAll = r.list; renderMine();
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
+}
+
+// تفاصيل الطلب
+function openReq(id){
+  const r = reqAll.find(x => x.RequestID === id);
+  if (!r) return;
+  const t = typeOf(r.Type), leave = t.g === "leave";
+  const no = "#" + String(r.RequestID).replace(/\D/g, "").slice(-6);
+  const row = (icn, l, v) => '<div class="drow"><span>' + ic(icn, 20) + l + '</span><b>' + v + '</b></div>';
+  const stage = r.Status === "بانتظار المدير" ? "عند المدير المباشر" : r.Status === "بانتظار HR" ? "عند مدير HR" : "";
+  $("detailBox").innerHTML = '<div class="card">' +
+    '<div class="dhead">' + icoBox(t, true) + '<div class="tx"><b>' + esc(r.Type) + '</b>' + sbadge(r.Status) +
+    (stage ? ' <span class="sub">' + stage + '</span>' : '') + '</div></div>' +
+    row("hash", "رقم الطلب", no) +
+    row("cal", "تاريخ التقديم", dsp(r.CreatedAt)) +
+    row("cal", leave ? "تاريخ البدء" : "التاريخ", dsp(r.FromDate)) +
+    (leave ? row("cal", "تاريخ الانتهاء", dsp(r.ToDate || r.FromDate)) : "") +
+    (leave && r.Days ? row("cal", "عدد الأيام", esc(r.Days) + " يوم") : "") +
+    row("note", "ملاحظات", r.Reason ? esc(r.Reason) : "لا يوجد") + '</div>' +
+    (isPend(r) ? '<button class="ghost" onclick="cancelReq(\'' + esc(r.RequestID) + '\')">' + ic("trash", 20) + 'إلغاء الطلب</button>' : "");
+  go("detail");
 }
 async function cancelReq(requestId){
   if (!confirm("تأكيد إلغاء الطلب؟")) return;
   try {
     const r = await call("cancelRequest", { ...me(), requestId });
     if (!r.ok) throw new Error(r.error);
-    show("تم إلغاء الطلب", "ok"); loadMine(); refreshMe();
+    go("req", "root"); show("تم إلغاء الطلب", "ok"); refreshMe();
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
 }
 
@@ -572,9 +734,9 @@ async function loadMissions(){
     const r = await call("myMissions", me());
     if (!r.ok) throw new Error(r.error);
     $("mList").innerHTML = r.list.length ? r.list.map(x =>
-      '<div class="req"><b>' + fmtDate(x.Date) + '</b><div class="sub">كلّفه: ' + esc(x.AssignedBy) + '</div>' +
-      (x.Details ? '<div class="sub">' + esc(x.Details) + '</div>' : '') + '</div>'
-    ).join("") : '<div class="item">مفيش مأموريات لسه</div>';
+      '<div class="li"><span class="ico o">' + ic("brief", 22) + '</span><span class="tx"><b>' + dsp(x.Date) + '</b>' +
+      '<small>كلّفه: ' + esc(x.AssignedBy) + '</small>' + (x.Details ? '<small>' + esc(x.Details) + '</small>' : '') + '</span></div>'
+    ).join("") : '<div class="empty">مفيش مأموريات لسه</div>';
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
 }
 
