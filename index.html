@@ -113,6 +113,35 @@
   .drow b{font-weight:600;text-align:left}
   .ghost{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:#fff;color:var(--navy);border:1.5px solid var(--navy);padding:14px;font-size:16px;font-weight:700;border-radius:14px;margin-top:16px}
   .empty{background:#fff;border-radius:16px;padding:22px 16px;margin-top:10px;text-align:center;color:var(--muted);font-size:14px;line-height:1.8}
+
+  /* المرحلة 4: سجل الحضور */
+  .badge.blue{background:#e0ecff;color:#1d4ed8}
+  .mnav{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:16px;padding:6px;box-shadow:0 2px 10px rgba(15,30,61,.05)}
+  .mnav button{background:none;color:var(--navy);padding:10px;display:flex;border-radius:12px}
+  .mnav button:disabled{opacity:.25}
+  .mnav b{font-size:16px}
+  .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+  .stat{background:#fff;border-radius:16px;padding:12px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 10px rgba(15,30,61,.05)}
+  .stat small{display:block;color:var(--muted);font-size:12px;line-height:1.4}.stat b{font-size:24px;color:var(--ink)}
+  .atable{background:#fff;border-radius:16px;box-shadow:0 2px 10px rgba(15,30,61,.05);overflow:hidden}
+  .ath,.atr{display:grid;grid-template-columns:1.5fr 1fr 1fr .9fr 1fr;gap:4px;align-items:center;padding:12px 12px;font-size:13px}
+  .ath{background:#f3f6fb;color:var(--muted);font-weight:700;font-size:12px}
+  .atr{border-top:1px solid var(--line)}
+  .atr .d b{display:block;font-size:13px}.atr .d small{color:var(--muted);font-size:12px}
+  .atr .bd{font-size:11px;padding:2px 6px;text-align:center}
+  #pgProfile{background:#fff;min-height:100vh}
+  .phead{position:relative;background:linear-gradient(170deg,#0d2566 0%,#173a8f 100%);color:#fff;text-align:center;padding:34px 18px 74px;overflow:hidden}
+  .pwave{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:96px;display:block}
+  .phead>*:not(.pwave){position:relative}
+  .avwrap{position:relative;width:104px;margin:0 auto 10px}
+  .phead .bigav{width:104px;height:104px;margin:0;font-size:42px;background:#e8eef9;color:var(--navy);border:3px solid rgba(255,255,255,.85);box-shadow:0 6px 20px rgba(0,0,0,.25)}
+  .avchk{position:absolute;right:2px;bottom:2px;width:26px;height:26px;border-radius:50%;background:#2f6bff;color:#fff;border:2px solid #fff;display:flex;align-items:center;justify-content:center}
+  .phead .pn{font-size:21px;font-weight:700}.phead .pj{opacity:.85;font-size:14px;margin-top:2px}
+  .pmenu{margin:-26px 0 100px;padding:0 20px;position:relative}
+  .pm{display:flex;align-items:center;gap:16px;width:100%;background:none;color:var(--ink);padding:18px 4px;text-align:right;border-bottom:1px solid var(--line);font-size:16px}
+  .pm:last-child{border:none}.pm .pt{flex:1;font-weight:600}.pm .pi{color:#2f6bff;display:flex}
+  .pm>span:last-child:not(.pt){color:var(--muted);display:flex}
+  .pm.out,.pm.out .pi{color:var(--red)}
 </style>
 </head>
 <body>
@@ -223,6 +252,25 @@
       </div>
     </section>
 
+    <section id="pgAtt" class="hidden">
+      <div class="pgbar">سجل الحضور والانصراف<button class="back" onclick="back()" aria-label="رجوع" data-ic="back" data-s="24"></button></div>
+      <div class="pad">
+        <div class="mnav">
+          <button id="mPrev" aria-label="الشهر السابق" style="transform:scaleX(-1)" data-ic="chev" data-s="24"></button>
+          <b><span id="mLabel"></span></b>
+          <button id="mNext" aria-label="الشهر التالي" data-ic="chev" data-s="24"></button>
+        </div>
+        <div class="sgrid">
+          <div class="stat"><span class="ico b" data-ic="cal"></span><div><small>عدد الأيام</small><b id="sDays">-</b></div></div>
+          <div class="stat"><span class="ico b" data-ic="clock"></span><div><small>ساعات العمل (متوسط)</small><b id="sAvg">-</b></div></div>
+        </div>
+        <div class="atable" id="attTable">
+          <div class="ath"><span>التاريخ</span><span>الحضور</span><span>الانصراف</span><span>المدة</span><span>الحالة</span></div>
+          <div id="attList"></div>
+        </div>
+      </div>
+    </section>
+
     <section id="pgApprove" class="hidden">
       <div class="pgbar">الموافقات</div>
       <div class="pad">
@@ -232,25 +280,27 @@
     </section>
 
     <section id="pgProfile" class="hidden">
-      <div class="pgbar">الملف الشخصي</div>
-      <div class="pad">
-        <div class="card" style="text-align:center">
+      <div class="phead">
+        <svg class="pwave" viewBox="0 0 430 120" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 70 C90 10 190 20 290 62 C350 88 395 90 430 76 L430 0 L0 0 Z" fill="rgba(255,255,255,.07)"/>
+          <path d="M0 96 C80 60 160 70 240 92 C320 114 380 108 430 84 L430 120 L0 120 Z" fill="#fff"/>
+        </svg>
+        <div class="avwrap">
           <div class="bigav" id="bigav"></div>
-          <div style="font-size:20px;font-weight:700" id="pName"></div>
-          <div class="sub" id="pJob"></div>
+          <span class="avchk" data-ic="check" data-s="14"></span>
         </div>
-        <div class="card" style="margin-top:12px">
-          <div class="prow"><span class="sub">الكود</span><b id="pId"></b></div>
-          <div class="prow"><span class="sub">التليفون</span><b id="pPhone"></b></div>
-          <div class="prow"><span class="sub">الرصيد المتاح</span><b id="pBal"></b></div>
-        </div>
-        <div style="display:grid;gap:10px;margin-top:12px">
-          <button class="rl" id="photoBtn"><span class="ico b" data-ic="camera"></span><span class="tx"><b>تغيير الصورة الشخصية</b><small>اختار صورة من المعرض أو صوّر</small></span><span data-ic="chev" data-s="20"></span></button>
-          <button class="rl" id="pinBtn"><span class="ico o" data-ic="lock"></span><span class="tx"><b>تغيير الرقم السري</b><small>غيّر الرقم اللي بتدخل بيه</small></span><span data-ic="chev" data-s="20"></span></button>
-        </div>
-        <input type="file" accept="image/*" id="photoIn" class="hidden">
-        <button class="out" id="logoutBtn">تسجيل الخروج</button>
+        <div class="pn" id="pName"></div>
+        <div class="pj" id="pJob"></div>
       </div>
+      <div class="pmenu">
+        <button class="pm" id="infoBtn"><span class="pi" data-ic="user" data-s="26"></span><span class="pt">معلوماتي الشخصية</span><span data-ic="chev" data-s="20"></span></button>
+        <button class="pm" onclick="go('att')"><span class="pi" data-ic="clock" data-s="26"></span><span class="pt">سجل الحضور والانصراف</span><span data-ic="chev" data-s="20"></span></button>
+        <button class="pm" onclick="go('req')"><span class="pi" data-ic="file" data-s="26"></span><span class="pt">طلباتي</span><span data-ic="chev" data-s="20"></span></button>
+        <button class="pm" id="setBtn"><span class="pi" data-ic="gear" data-s="26"></span><span class="pt">الإعدادات</span><span data-ic="chev" data-s="20"></span></button>
+        <button class="pm" id="helpBtn"><span class="pi" data-ic="help" data-s="26"></span><span class="pt">مساعدة</span><span data-ic="chev" data-s="20"></span></button>
+        <button class="pm out" id="logoutBtn"><span class="pi" data-ic="logout" data-s="26"></span><span class="pt">تسجيل الخروج</span></button>
+      </div>
+      <input type="file" accept="image/*" id="photoIn" class="hidden">
     </section>
 
     <nav class="nav" id="nav"></nav>
@@ -274,6 +324,39 @@
     <div class="sheetBox">
       <div class="sheetHd"><b>آخر التحديثات على طلباتك</b><button class="x" id="bellClose">إغلاق</button></div>
       <div id="bellList"></div>
+    </div>
+  </div>
+
+  <!-- معلوماتي الشخصية -->
+  <div id="infoPanel" class="sheet hidden">
+    <div class="sheetBox">
+      <div class="sheetHd"><b>معلوماتي الشخصية</b><button class="x" id="infoClose">إغلاق</button></div>
+      <div class="prow"><span class="sub">الاسم</span><b id="iName"></b></div>
+      <div class="prow"><span class="sub">الوظيفة</span><b id="iJob"></b></div>
+      <div class="prow"><span class="sub">الكود</span><b id="pId"></b></div>
+      <div class="prow"><span class="sub">التليفون</span><b id="pPhone"></b></div>
+      <div class="prow"><span class="sub">الرصيد المتاح</span><b id="pBal"></b></div>
+    </div>
+  </div>
+
+  <!-- مساعدة -->
+  <div id="helpPanel" class="sheet hidden">
+    <div class="sheetBox">
+      <div class="sheetHd"><b>مساعدة</b><button class="x" id="helpClose">إغلاق</button></div>
+      <div class="item" style="margin-top:0">لو التسجيل مش بيشتغل، اتأكد إن الـ GPS شغال وإنك داخل نطاق الشركة.</div>
+      <div class="item">لو ظهرت رسالة إن الحساب مربوط بموبايل تاني، كلّم المدير.</div>
+      <div class="item">لأي استفسار عن طلباتك، كلّم مديرك المباشر أو مدير HR.</div>
+    </div>
+  </div>
+
+  <!-- الإعدادات -->
+  <div id="setPanel" class="sheet hidden">
+    <div class="sheetBox">
+      <div class="sheetHd"><b>الإعدادات</b><button class="x" id="setClose">إغلاق</button></div>
+      <div style="display:grid;gap:10px">
+        <button class="rl" id="photoBtn"><span class="ico b" data-ic="camera"></span><span class="tx"><b>تغيير الصورة الشخصية</b><small>اختار صورة من المعرض أو صوّر</small></span><span data-ic="chev" data-s="20"></span></button>
+        <button class="rl" id="pinBtn"><span class="ico o" data-ic="lock"></span><span class="tx"><b>تغيير الرقم السري</b><small>غيّر الرقم اللي بتدخل بيه</small></span><span data-ic="chev" data-s="20"></span></button>
+      </div>
     </div>
   </div>
 
@@ -354,6 +437,9 @@ const I = {
   medic:'<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M12 9v8M8 13h8"/>',
   hash:'<path d="M5 9h14M5 15h14M10 4L8 20M16 4l-2 16"/>',
   note:'<path d="M5 4h14v16H5z"/><path d="M9 9h6M9 13h4"/>',
+  list:'<path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/>',
   shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>'
 };
 function ic(n, s){ return '<svg width="' + (s || 22) + '" height="' + (s || 22) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + I[n] + '</svg>'; }
@@ -459,7 +545,7 @@ function balUI(){
 }
 
 // ===== التنقل =====
-const PG = { home: "pgHome", req: "pgReq", types: "pgTypes", form: "pgForm", detail: "pgDetail", mission: "pgMission", approve: "pgApprove", profile: "pgProfile" };
+const PG = { home: "pgHome", req: "pgReq", types: "pgTypes", form: "pgForm", detail: "pgDetail", att: "pgAtt", mission: "pgMission", approve: "pgApprove", profile: "pgProfile" };
 let cur = null, hist = [];
 function go(p, how){
   if (how === "root") hist = [];
@@ -469,24 +555,31 @@ function go(p, how){
   const items = [["home", "الرئيسية", "home"], ["req", "طلباتي", "file"]];
   if (session.role === "Manager" || session.role === "HR") items.push(["approve", "الموافقات", "shield"]);
   items.push(["profile", "الملف الشخصي", "user"]);
-  const act = p === "mission" ? "home" : (p === "types" || p === "form" || p === "detail") ? "req" : p;
+  const act = p === "att" ? "profile" : p === "mission" ? "home" : (p === "types" || p === "form" || p === "detail") ? "req" : p;
   $("nav").innerHTML = items.map(i => '<button class="ni' + (i[0] === act ? ' on' : '') + '" onclick="go(\'' + i[0] + '\',\'root\')">' + ic(i[2], 24) + '<span>' + i[1] + '</span></button>').join("");
   hideMsg(); window.scrollTo(0, 0);
   if (p === "req") { loadMine(); balUI(); }
   if (p === "types") renderTypes();
   if (p === "mission") loadMissions();
+  if (p === "att") { if (how !== "back") attMonth = curMonth(); loadAtt(); }
   if (p === "approve") loadPending();
   if (p === "profile") fillProfile();
 }
 function back(){ go(hist.pop() || "home", "back"); }
 function fillProfile(){
   setAvatars();
-  $("pName").textContent = session.name;
+  $("pName").textContent = session.name; $("iName").textContent = session.name; $("iJob").textContent = session.jobTitle || "-";
   $("pJob").textContent = session.jobTitle || "";
   $("pId").textContent = session.id;
   $("pPhone").textContent = session.phone || "-";
   balUI();
 }
+$("infoBtn").onclick = () => { fillProfile(); $("infoPanel").classList.remove("hidden"); };
+$("infoClose").onclick = () => $("infoPanel").classList.add("hidden");
+$("helpBtn").onclick = () => $("helpPanel").classList.remove("hidden");
+$("helpClose").onclick = () => $("helpPanel").classList.add("hidden");
+$("setBtn").onclick = () => $("setPanel").classList.remove("hidden");
+$("setClose").onclick = () => $("setPanel").classList.add("hidden");
 $("logoutBtn").onclick = () => { store.del("session"); location.reload(); };
 
 // ===== البصمة (بصمة أو قفل شاشة الموبايل) =====
@@ -763,6 +856,48 @@ async function loadMissions(){
     ).join("") : '<div class="empty">مفيش مأموريات لسه</div>';
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
 }
+
+// ===== سجل الحضور والانصراف =====
+const curMonth = () => new Date().toLocaleDateString("en-CA").slice(0, 7);
+let attMonth = curMonth(), attTok = 0;
+function shiftMonth(n){
+  const p = attMonth.split("-"), d = new Date(Number(p[0]), Number(p[1]) - 1 + n, 1);
+  attMonth = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2);
+  loadAtt();
+}
+function hm(min){
+  if (!min) return "-";
+  return Math.floor(min / 60) + ":" + ("0" + (min % 60)).slice(-2);
+}
+const AST = { "حاضر": "yes", "متأخر": "", "مأمورية": "blue" };
+async function loadAtt(){
+  const tok = ++attTok;
+  const p = attMonth.split("-");
+  $("mLabel").textContent = new Date(Number(p[0]), Number(p[1]) - 1, 1).toLocaleDateString("ar-EG", { month: "long", year: "numeric" });
+  $("mNext").disabled = attMonth >= curMonth();
+  $("attList").innerHTML = '<div class="empty">جاري التحميل...</div>';
+  ["sDays", "sAvg"].forEach(i => $(i).textContent = "-");
+  try {
+    const r = await call("myAttendance", { ...me(), month: attMonth });
+    if (tok !== attTok) return;
+    if (!r.ok) throw new Error(r.error);
+    $("sDays").textContent = r.daysCount;
+    $("sAvg").textContent = hm(r.avgMinutes);
+    $("attList").innerHTML = r.list.length ? r.list.map(x => {
+      const dt = new Date(x.date + "T12:00:00");
+      const wd = dt.toLocaleDateString("ar-EG", { weekday: "long" });
+      return '<div class="atr"><div class="d"><b>' + wd + '</b><small>' + x.date.replace(/-/g, "/") + '</small></div>' +
+        '<span>' + (x.inTime || "-") + '</span><span>' + (x.outTime || "-") + '</span><span>' + hm(x.minutes) + '</span>' +
+        '<span class="badge bd ' + (AST[x.status] || "gray") + '">' + esc(x.status) + '</span></div>';
+    }).join("") : '<div class="empty" style="margin:0;border-radius:0">مفيش تسجيلات في الشهر ده</div>';
+  } catch (e) {
+    if (tok !== attTok) return;
+    $("attList").innerHTML = '<div class="empty">تعذر تحميل السجل، جرّب تاني</div>';
+    show(e.message || "حصل خطأ", "err");
+  }
+}
+$("mPrev").onclick = () => shiftMonth(-1);
+$("mNext").onclick = () => shiftMonth(1);
 
 // ===== جرس الإشعارات (داخل التطبيق بس) =====
 let bellData = [];
