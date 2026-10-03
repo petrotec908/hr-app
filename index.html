@@ -491,9 +491,10 @@
       <div class="sheetHd"><b>معلوماتي الشخصية</b><button class="x" id="infoClose">إغلاق</button></div>
       <div class="prow"><span class="sub">الاسم</span><b id="iName"></b></div>
       <div class="prow"><span class="sub">الوظيفة</span><b id="iJob"></b></div>
+      <div class="prow"><span class="sub">الإدارة</span><b id="pDept"></b></div>
       <div class="prow"><span class="sub">الكود</span><b id="pId"></b></div>
       <div class="prow"><span class="sub">التليفون</span><b id="pPhone"></b></div>
-      <div class="prow"><span class="sub">الرصيد المتاح</span><b id="pBal"></b></div>
+      <div class="prow"><span class="sub">الرقم التأميني</span><b id="pIns"></b></div>
     </div>
   </div>
 
@@ -678,7 +679,7 @@ $("loginBtn").onclick = async () => {
   try {
     const r = await call("login", { id, pin });
     if (!r.ok) throw new Error(r.error);
-    session = { id, pin, name: r.name, role: r.role, jobTitle: r.jobTitle || "", phone: r.phone || "", available: r.available };
+    session = { id, pin, name: r.name, role: r.role, jobTitle: r.jobTitle || "", phone: r.phone || "", department: r.department || "", insurance: r.insurance || "", available: r.available };
     store.set("session", JSON.stringify(session));
     hideMsg(); openMain();
   } catch (e) {
@@ -701,7 +702,7 @@ async function refreshMe(){
   try {
     const r = await call("login", me());
     if (!r.ok) return;
-    Object.assign(session, { name: r.name, role: r.role, jobTitle: r.jobTitle || "", phone: r.phone || "", available: r.available });
+    Object.assign(session, { name: r.name, role: r.role, jobTitle: r.jobTitle || "", phone: r.phone || "", department: r.department || "", insurance: r.insurance || "", available: r.available });
     store.set("session", JSON.stringify(session));
     fillHeader(); balUI();
   } catch (e) {}
@@ -717,7 +718,7 @@ function fillHeader(){
 }
 function balUI(){
   const t = session.available == null ? "-" : session.available + " يوم";
-  $("balTxt").textContent = t; $("pBal").textContent = t;
+  $("balTxt").textContent = t;
 }
 
 // ===== التنقل =====
@@ -758,7 +759,8 @@ function fillProfile(){
   $("pJob").textContent = session.jobTitle || "";
   $("pId").textContent = session.id;
   $("pPhone").textContent = session.phone || "-";
-  balUI();
+  $("pDept").textContent = session.department || "-";
+  $("pIns").textContent = session.insurance || "-";
 }
 $("infoBtn").onclick = () => { fillProfile(); $("infoPanel").classList.remove("hidden"); };
 $("infoClose").onclick = () => $("infoPanel").classList.add("hidden");
