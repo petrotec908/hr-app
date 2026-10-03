@@ -1701,8 +1701,8 @@ const RSTAT = { "حضور": ["#ddf5ea", "#14804a"], "تأخير": ["#fef3c7", "#
 const repHM = m => Math.floor(m / 60) + ":" + ("0" + (m % 60)).slice(-2);
 const repKey = () => rep.type + "|" + rep.month + "|" + (rep.type === "employee" ? rep.emp : "");
 const repReady = () => /^\d{4}-\d{2}$/.test(rep.month) && (rep.type === "company" || !!rep.emp);
-const oReports = () => '<div id="repHost"></div>';
-const pReports = () => pBar("التقارير", !pv.root) + '<div class="pad"><div id="repHost"></div></div>';
+const oReports = () => '<div id="repHostO"></div>';
+const pReports = () => pBar("التقارير", !pv.root) + '<div class="pad"><div id="repHostO"></div></div>';
 
 function repMonths(){
   const out = [], n = new Date();
@@ -1744,7 +1744,7 @@ async function repLoad(force){
 }
 
 function repRender(){
-  const host = $("repHost"); if (!host) return;
+  const host = $(session.role === "Owner" ? "repHostO" : "repHost"); if (!host) return;
   if (!rep.emps && !rep.listing) repLoadList();
   const tabs = [["company", "تقرير الشركة"], ["employee", "تقرير موظف"]];
   const chosen = rep.type === "employee" && rep.emp ? (rep.emps || []).find(e => e.id === rep.emp) : null;
