@@ -181,6 +181,79 @@
   .apb:disabled{opacity:.6}
   .rcp{display:inline-flex;align-items:center;gap:3px;color:rgba(255,255,255,.6)}
   .rcp.seen{color:#4ade80;font-weight:700}
+
+  /* شاشة صاحب الشركة (موبايل + لابتوب) */
+  .app.owner{max-width:none}
+  #ownerView{display:flex;min-height:100vh;background:var(--bg)}
+  .osb{display:none}
+  .omain{flex:1;min-width:0;padding-bottom:84px}
+  .oin{max-width:640px;margin:0 auto;padding:0 14px}
+  .ohd{background:linear-gradient(160deg,var(--navy),var(--navy2));color:#fff;padding:16px 0 30px;border-radius:0 0 26px 26px}
+  .ohd .oin{display:flex;flex-direction:column;gap:10px}
+  .ohr{display:flex;align-items:center;gap:12px}
+  .ohr .tx{flex:1;min-width:0}.ohr b{display:block;font-size:19px}.ohr small{opacity:.8;font-size:13px}
+  .oav{width:46px;height:46px;border-radius:50%;background:#e8ecff;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;flex:none}
+  .oav.lg{width:64px;height:64px;font-size:26px}
+  .oib{position:relative;background:rgba(255,255,255,.14);color:#fff;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:none}
+  .obadge{position:absolute;top:-4px;left:-4px;background:var(--red);color:#fff;border-radius:99px;min-width:18px;height:18px;font-size:11px;font-style:normal;display:flex;align-items:center;justify-content:center;padding:0 4px}
+  .odate{width:auto!important;padding:8px 10px!important;font-size:14px!important;background:rgba(255,255,255,.14)!important;color:inherit!important;border:0!important;border-radius:12px!important;color-scheme:dark}
+  .oweek{background:#fff4dc;color:#8a5a00;border-radius:12px;padding:10px 12px;font-size:14px;margin-top:12px}
+  .ocard{background:#fff;border-radius:18px;padding:14px;margin-top:14px;box-shadow:0 2px 10px rgba(15,30,61,.06)}
+  .ocard h3{margin:0 0 10px;font-size:17px}
+  .otiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .otile{border-radius:16px;padding:12px;text-align:right;color:var(--ink);display:block;width:100%}
+  .otile .otl{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px}
+  .otile .otn{font-size:30px;font-weight:700;margin-top:6px}
+  .ring{--p:0;width:74px;height:74px;border-radius:50%;background:conic-gradient(var(--green) calc(var(--p)*1%),#e3e8f3 0);display:flex;align-items:center;justify-content:center;flex:none}
+  .ring span{width:56px;height:56px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#14804a}
+  .obar{height:10px;border-radius:99px;background:#e3e8f3;overflow:hidden;margin-top:8px}
+  .obar i{display:block;height:100%;background:var(--green);border-radius:99px}
+  .otabs{display:flex;gap:6px;overflow-x:auto;padding:12px 0 4px}
+  .otab{background:#fff;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:7px 14px;font-size:13px;font-weight:600;white-space:nowrap}
+  .otab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .osrch{position:relative;margin-top:10px}
+  .osrch input{padding-inline-start:40px}
+  .osrch svg{position:absolute;top:50%;inset-inline-start:12px;transform:translateY(-50%);color:var(--muted)}
+  .orow{display:flex;align-items:center;gap:12px;width:100%;background:#fff;color:var(--ink);padding:12px;border-radius:16px;margin-top:10px;text-align:right;box-shadow:0 2px 10px rgba(15,30,61,.05)}
+  .orow .tx{flex:1;min-width:0}.orow b{display:block;font-size:15px}.orow small{color:var(--muted);font-size:12px;display:block}
+  .oend{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none}
+  .obd{border-radius:99px;padding:3px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+  .osum{display:flex;align-items:center;justify-content:space-between;border-radius:16px;padding:14px;margin-top:14px;font-weight:700}
+  .osum .n{font-size:30px}
+  .oacard{display:flex;align-items:center;gap:12px;width:100%;background:#fff;color:var(--ink);padding:14px;border-radius:16px;margin-top:10px;text-align:right;box-shadow:0 2px 10px rgba(15,30,61,.05)}
+  .oacard .tx{flex:1}.oacard b{display:block;font-size:15px}.oacard small{color:var(--muted);font-size:12px}
+  .otip{background:#e8f1ff;color:#24508f;border-radius:14px;padding:12px 14px;margin-top:14px;font-size:13px;line-height:1.8}
+  .obot{position:fixed;bottom:0;left:0;right:0;background:var(--navy);display:flex;justify-content:space-around;padding:8px 6px 10px;border-radius:20px 20px 0 0;z-index:20}
+  .obn{position:relative;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;color:rgba(255,255,255,.65);font-size:12px;padding:4px 10px;flex:1}
+  .obn.on{color:#fff;font-weight:700}
+  .lap{display:none}
+  .odon{width:150px;height:150px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+  .odon span{width:96px;height:96px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:24px;line-height:1.2}
+  .odon small{font-size:12px;font-weight:400;color:var(--muted)}
+  .oleg{flex:1;display:grid;gap:8px;font-size:14px}
+  .oleg div{display:flex;align-items:center;gap:8px}.oleg i{width:10px;height:10px;border-radius:50%;display:inline-block}.oleg b{margin-inline-start:auto}
+  @media (min-width:900px){
+    #ownerView{background:var(--bg)}
+    .osb{display:flex;flex-direction:column;width:250px;flex:none;background:var(--navy2);color:#fff;padding:22px 14px;position:sticky;top:0;height:100vh}
+    .obrand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;padding:6px 10px 22px}
+    .osn{position:relative;display:flex;align-items:center;gap:12px;width:100%;background:none;color:rgba(255,255,255,.75);padding:13px 14px;border-radius:12px;font-size:16px;text-align:right;margin-bottom:6px}
+    .osn.on{background:#2a5bd7;color:#fff;font-weight:700}
+    .osn .obadge{position:static;margin-inline-start:auto}
+    .osout{margin-top:auto;display:flex;align-items:center;gap:10px;background:none;color:rgba(255,255,255,.75);padding:12px 14px;font-size:15px;border-top:1px solid rgba(255,255,255,.15);border-radius:0}
+    .omain{padding:18px 24px}
+    .oin{max-width:none;padding:0}
+    .ohd{background:#fff;color:var(--ink);border-radius:18px;padding:14px 18px;box-shadow:0 2px 10px rgba(15,30,61,.06)}
+    .ohd .oib{background:#eef2fb;color:var(--navy)}
+    .odate{background:#eef2fb!important;color-scheme:light}
+    .obot,.oout-m{display:none}
+    .otiles{grid-template-columns:repeat(6,1fr)}
+    .lap{display:block}
+    .ogrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .ogrid .ocard{margin-top:14px}
+    .oquick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .oq{display:flex;align-items:center;gap:10px;border-radius:14px;padding:14px;text-align:right;color:var(--ink);font-weight:700;font-size:14px}
+    .oview{max-width:900px}
+  }
 </style>
 </head>
 <body>
@@ -425,24 +498,31 @@
     </div>
   </div>
 
-  <!-- شاشة صاحب الشركة (عرض فقط) -->
-  <div class="card hidden" id="ownerView">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-      <div><div style="font-size:20px;font-weight:bold" id="oHello"></div><div class="sub" id="oSub"></div></div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <input type="date" id="oDate" style="width:auto;padding:8px">
-        <button class="primary" id="oRefresh" style="width:auto;margin:0;padding:10px 16px;font-size:14px">تحديث</button>
-      </div>
-    </div>
-    <div class="item hidden" id="oWeekend">النهارده إجازة أسبوعية، مفيش غياب بيتحسب. بيظهر بس اللي سجّل حضور أو مأمورية.</div>
-    <div class="kgrid" id="oKpis"></div>
-    <div class="item" style="margin-top:0">
-      <div style="font-weight:bold" id="oTitle"></div>
-      <div id="oList"></div>
-    </div>
-    <div class="kgrid" id="oStats"></div>
-    <button class="link" id="oLogout">تسجيل خروج</button>
+  <!-- شاشة صاحب الشركة -->
+  <div id="ownerView" class="hidden">
+    <aside class="osb">
+      <div class="obrand"><span data-ic="cal" data-s="30"></span>منصة حضور</div>
+      <div id="oSideNav"></div>
+      <button class="osout" id="oLogout"><span data-ic="logout" data-s="20"></span>تسجيل الخروج</button>
+    </aside>
+    <main class="omain">
+      <header class="ohd"><div class="oin">
+        <div class="ohr">
+          <span class="oav" id="oAv"></span>
+          <div class="tx"><b id="oHello"></b><small id="oSub"></small></div>
+          <input type="date" id="oDate" class="odate">
+          <button class="oib" id="oRefresh" aria-label="تحديث" data-ic="refresh" data-s="20"></button>
+          <button class="oib" id="oBell" aria-label="الإشعارات"><span data-ic="bell" data-s="22"></span><i class="obadge hidden" id="oBellN"></i></button>
+          <button class="oib oout-m" id="oLogoutM" aria-label="خروج" data-ic="logout" data-s="20"></button>
+        </div>
+      </div></header>
+      <div class="oin"><div class="oweek hidden" id="oWeekend">النهارده إجازة أسبوعية، مفيش غياب بيتحسب.</div></div>
+      <div class="oin oview" id="oBody"></div>
+    </main>
+    <nav class="obot" id="oBotNav"></nav>
   </div>
+
+  <div id="oSheet" class="sheet hidden"><div class="sheetBox" id="oSheetBox"></div></div>
 
   <div id="msg"></div>
 </div>
@@ -479,6 +559,9 @@ const I = {
   login:'<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5M15 12H3"/>',
   check:'<path d="M5 12l5 5 9-10"/>',
   x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+  warn:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>',
+  refresh:'<path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/>',
   pin:'<path d="M12 22s7-6 7-12a7 7 0 0 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
   brief:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',
   chev:'<path d="M15 6l-6 6 6 6"/>',
@@ -1122,55 +1205,161 @@ $("pinSave").onclick = async () => {
   finally { $("pinSave").disabled = false; }
 };
 
-// ===== شاشة صاحب الشركة =====
-let dash = null, dashKey = "present", dashTimer = null;
-const kinds = [
-  ["present", "حاضر", "#dcfce7", "#166534"], ["absent", "غايب", "#fee2e2", "#991b1b"],
-  ["mission", "مأمورية", "#e0f2fe", "#075985"], ["leave", "إجازة", "#fef9c3", "#854d0e"],
-  ["late", "متأخر", "#f1f5f9", "#475569"],
-  ["left", "انصرف", "#ede9fe", "#5b21b6"]
-];
+// ===== شاشة صاحب الشركة (موبايل + لابتوب) =====
+let dash = null, oView = "home", empF = "all", empQ = "", reqF = "all", dashTimer = null;
+const oST = {
+  present: ["حاضر", "#e2f7ec", "#14804a"], late: ["متأخر", "#fff1e0", "#b35c00"], absent: ["غائب", "#fdeaea", "#c43434"],
+  mission: ["مأمورية", "#e3edff", "#2f6fe0"], leave: ["إجازة", "#f0eaff", "#6d3fd1"], off: ["إجازة أسبوعية", "#eef1f6", "#6b7a99"]
+};
+const oGrp = { present: ["present", "late"], absent: ["absent"], mission: ["mission"], leave: ["leave"], late: ["late"] };
+const oBadge = k => { const x = oST[k] || oST.off; return '<span class="obd" style="background:' + x[1] + ';color:' + x[2] + '">' + x[0] + '</span>'; };
+const oPeople = k => (dash.people || []).filter(p => k === "all" || (oGrp[k] || [k]).indexOf(p.status) !== -1);
+const oPend = () => dash.pendingManager + dash.pendingHR;
+const oFollow = () => oPend() + oPeople("late").length + dash.rejected;
+const oToday = () => new Date().toLocaleDateString("en-CA");
+
 function openOwner(){
   $("empShell").classList.add("hidden");
-  $("ownerView").classList.remove("hidden"); $("appBox").classList.add("wide");
-  $("oHello").textContent = "أهلًا " + session.name;
-  $("oDate").value = new Date().toLocaleDateString("en-CA");
+  $("ownerView").classList.remove("hidden"); $("appBox").classList.add("owner");
+  $("oHello").textContent = "أهلاً " + session.name;
+  $("oAv").textContent = session.name.charAt(0);
+  $("oDate").value = oToday();
   hideMsg(); loadDash();
   clearInterval(dashTimer);
-  dashTimer = setInterval(() => { if ($("oDate").value === new Date().toLocaleDateString("en-CA")) loadDash(); }, 60000);
+  dashTimer = setInterval(() => { if ($("oDate").value === oToday() && $("oSheet").classList.contains("hidden")) loadDash(); }, 60000);
 }
 async function loadDash(){
   try {
     const r = await call("dashboard", { ...me(), date: $("oDate").value });
     if (!r.ok) throw new Error(r.error);
-    dash = r; renderDash();
+    dash = r; renderOwner();
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
 }
-function pick(k){ dashKey = k; renderDash(); }
-function noteOf(k, x){
-  if (k === "absent") return "لم يسجّل حضور";
-  if (k === "mission") return "كلّفه: " + esc(x.by) + (x.details ? " - " + esc(x.details) : "");
-  if (k === "leave") return "إجازة معتمدة";
-  if (k === "left") return "انصرف " + esc(x.time) + (x.inTime ? " (حضر " + esc(x.inTime) + ")" : "");
-  return "حضر " + esc(x.time) + (x.late ? " (متأخر)" : x.permit ? " (بإذن)" : "");
+function oGo(v, f){
+  oView = v;
+  if (v === "emps") { empF = f || "all"; empQ = ""; }
+  window.scrollTo(0, 0); renderOwner();
 }
-function renderDash(){
-  $("oSub").textContent = dash.total + " موظف - عرض فقط - " + dash.day;
+function renderOwner(){
+  if (!dash) return;
+  $("oSub").textContent = "صاحب الشركة - " + dash.total + " موظف";
   $("oWeekend").classList.toggle("hidden", !dash.isWeekend);
-  $("oKpis").innerHTML = kinds.map(k =>
-    '<div class="kpi' + (k[0] === dashKey ? ' on' : '') + '" style="background:' + k[2] + ';color:' + k[3] + '" onclick="pick(\'' + k[0] + '\')">' +
-    '<div class="l">' + k[1] + '</div><div class="n">' + dash[k[0]].length + '</div></div>').join("");
-  const kind = kinds.find(k => k[0] === dashKey), list = dash[dashKey];
-  $("oTitle").textContent = "أسماء: " + kind[1] + " (" + list.length + ")";
-  $("oList").innerHTML = list.length ? list.map(x =>
-    '<div class="nrow"><span>' + esc(x.name) + ' <span class="sub">(' + esc(x.id) + ')</span></span><span class="sub">' + noteOf(dashKey, x) + '</span></div>').join("")
-    : '<div class="sub" style="padding:10px 4px">مفيش أسماء</div>';
-  const st = [["طلبات عند المدير المباشر", dash.pendingManager], ["طلبات عند مدير HR", dash.pendingHR], ["محاولات تسجيل مرفوضة", dash.rejected]];
-  $("oStats").innerHTML = st.map(x => '<div class="kpi" style="background:#f1f5f9;cursor:default"><div class="l sub">' + x[0] + '</div><div class="n">' + x[1] + '</div></div>').join("");
+  const n = oFollow();
+  $("oBellN").textContent = n; $("oBellN").classList.toggle("hidden", !n);
+  const items = [["home", "الرئيسية", "home"], ["emps", "الموظفون", "user"], ["reqs", "الطلبات", "file"], ["alerts", "الإشعارات", "bell"]];
+  const mk = cls => items.map(i => '<button class="' + cls + (i[0] === oView ? ' on' : '') + '" onclick="oGo(\'' + i[0] + '\')">' + ic(i[2], 22) +
+    (i[0] === "alerts" && n ? '<i class="obadge">' + n + '</i>' : '') + '<span>' + i[1] + '</span></button>').join("");
+  $("oBotNav").innerHTML = mk("obn"); $("oSideNav").innerHTML = mk("osn");
+  $("oBody").innerHTML = { home: oHome, emps: oEmps, reqs: oReqs, alerts: oAlerts }[oView]();
+  if (oView === "emps") oEList();
 }
+
+// الرئيسية
+function oHome(){
+  const t = dash.total, pres = oPeople("present").length, abs = oPeople("absent").length;
+  const ms = oPeople("mission").length, lv = oPeople("leave").length, pct = t ? Math.round(pres * 100 / t) : 0;
+  const tiles = [
+    ["present", "حاضر", "user", "#e2f7ec", "#14804a", pres, "oGo('emps','present')"],
+    ["absent", "غائب", "user", "#fdeaea", "#c43434", abs, "oGo('emps','absent')"],
+    ["mission", "مأمورية", "brief", "#fff4dc", "#b36b00", ms, "oGo('emps','mission')"],
+    ["leave", "إجازة", "cal", "#e8ecff", "#3b5bdb", lv, "oGo('emps','leave')"],
+    ["follow", "يحتاج متابعة", "warn", "#f0eaff", "#6d3fd1", oFollow(), "oGo('alerts')"],
+    ["reqs", "طلبات الموظفين", "file", "#e3edff", "#2f6fe0", oPend(), "oGo('reqs')"]
+  ];
+  let h = '<div class="ocard"><h3>ملخص اليوم</h3><div class="otiles">' + tiles.map(x =>
+    '<button class="otile" style="background:' + x[3] + '" onclick="' + x[6] + '"><div class="otl" style="color:' + x[4] + '">' + ic(x[2], 20) + x[1] + '</div><div class="otn" style="color:' + x[4] + '">' + x[5] + '</div></button>').join("") + '</div></div>';
+  h += '<div class="ocard"><h3>سجل حضور اليوم</h3><div style="display:flex;align-items:center;gap:14px"><div style="flex:1"><div><b style="color:#14804a;font-size:22px">' + pres + '</b> / ' + t + ' موظف حاضر</div>' +
+    '<div class="obar"><i style="width:' + pct + '%"></i></div></div><div class="ring" style="--p:' + pct + '"><span>' + pct + '%</span></div></div></div>';
+  // لابتوب بس
+  const segs = [[pres, "#1fb26b"], [abs, "#ee4b4b"], [lv, "#f5b400"], [ms, "#3b82f6"]];
+  let acc = 0; const parts = [];
+  segs.forEach(g => { const d = t ? g[0] * 360 / t : 0; if (d) parts.push(g[1] + " " + acc + "deg " + (acc + d) + "deg"); acc += d; });
+  if (acc < 360) parts.push("#e3e8f3 " + acc + "deg 360deg");
+  const leg = [["حاضر", pres, "#1fb26b"], ["غائب", abs, "#ee4b4b"], ["إجازة", lv, "#f5b400"], ["مأمورية", ms, "#3b82f6"]];
+  const latest = (dash.requests || []).slice(0, 5).map(oReqRow).join("") || '<div class="empty">مفيش طلبات لسه</div>';
+  const quick = [["عرض الحاضرين", "قائمة الموظفين اللي سجلوا حضورهم", "user", "#e2f7ec", "#14804a", "oGo('emps','present')"],
+    ["عرض الغائبين", "قائمة الموظفين الغائبين اليوم", "user", "#fdeaea", "#c43434", "oGo('emps','absent')"],
+    ["عرض المأموريات", "قائمة المأموريات اليوم", "brief", "#f0eaff", "#6d3fd1", "oGo('emps','mission')"],
+    ["عرض طلبات الموظفين", "الإجازات والأذونات", "file", "#fff4dc", "#b36b00", "oGo('reqs')"]];
+  h += '<div class="lap"><div class="ogrid"><div class="ocard"><h3>توزيع الموظفين حسب الحالة</h3><div style="display:flex;align-items:center;gap:18px">' +
+    '<div class="odon" style="background:conic-gradient(' + parts.join(",") + ')"><span>' + t + '<small>موظف</small></span></div>' +
+    '<div class="oleg">' + leg.map(x => '<div><i style="background:' + x[2] + '"></i>' + x[0] + '<b>' + x[1] + '</b></div>').join("") + '</div></div></div>' +
+    '<div class="ocard"><h3>أحدث الطلبات</h3>' + latest + '</div></div>' +
+    '<div class="ocard"><h3>إجراءات سريعة</h3><div class="oquick">' + quick.map(x =>
+      '<button class="oq" style="background:' + x[3] + '" onclick="' + x[5] + '"><span style="color:' + x[4] + '">' + ic(x[2], 24) + '</span><span>' + x[0] + '<small style="display:block;font-weight:400;color:var(--muted)">' + x[1] + '</small></span></button>').join("") + '</div></div></div>';
+  return h;
+}
+
+// الموظفون
+function oEmps(){
+  const tabs = [["all", "الكل"], ["present", "حاضر"], ["absent", "غائب"], ["mission", "مأمورية"], ["leave", "إجازة"]];
+  const lab = { all: "إجمالي الموظفين", present: "الحاضرون اليوم", absent: "الغائبون اليوم", mission: "في مأمورية", leave: "في إجازة" };
+  const col = { all: ["#e8ecff", "#3b5bdb"], present: ["#e2f7ec", "#14804a"], absent: ["#fdeaea", "#c43434"], mission: ["#fff4dc", "#b36b00"], leave: ["#f0eaff", "#6d3fd1"] }[empF];
+  return '<div class="osum" style="background:' + col[0] + ';color:' + col[1] + '"><span>' + lab[empF] + '</span><span class="n">' + oPeople(empF).length + '</span></div>' +
+    '<div class="otabs">' + tabs.map(x => '<button class="otab' + (x[0] === empF ? ' on' : '') + '" onclick="oGo(\'emps\',\'' + x[0] + '\')">' + x[1] + '</button>').join("") + '</div>' +
+    '<div class="osrch">' + ic("search", 20) + '<input id="oQ" placeholder="ابحث عن موظف..." value="' + esc(empQ) + '" oninput="empQ=this.value;oEList()"></div><div id="oEList"></div>';
+}
+function oEList(){
+  const q = empQ.trim().toLowerCase();
+  const list = oPeople(empF).filter(p => !q || (p.name + " " + p.id + " " + p.job).toLowerCase().indexOf(q) !== -1);
+  const sub = p => p.status === "absent" ? "بدون تسجيل" : p.status === "leave" ? "إجازة معتمدة" : p.status === "mission" ? "مأمورية" : p.inTime ? "حضر " + p.inTime : "";
+  $("oEList").innerHTML = list.length ? list.map(p =>
+    '<button class="orow" onclick="oEmp(\'' + esc(p.id) + '\')"><span class="oav">' + esc(String(p.name).charAt(0)) + '</span>' +
+    '<span class="tx"><b>' + esc(p.name) + '</b><small>' + esc(p.job || p.id) + '</small></span>' +
+    '<span class="oend">' + oBadge(p.status) + '<small>' + sub(p) + '</small></span></button>').join("") : '<div class="empty">مفيش موظفين</div>';
+}
+function oEmp(id){
+  const p = (dash.people || []).find(x => String(x.id) === String(id));
+  if (!p) return;
+  const row = (icn, l, v) => '<div class="drow"><span>' + ic(icn, 20) + l + '</span><b>' + v + '</b></div>';
+  let act = "";
+  if (p.inTime) act += row("check", "تم تسجيل الحضور", esc(p.inTime));
+  if (p.outTime) act += row("clock", "تم تسجيل الانصراف", esc(p.outTime));
+  else if (p.inTime) act += row("clock", "الانصراف", "لم يتم بعد");
+  if (p.status === "mission") act += row("brief", "كلّفه", esc(p.by || "-") + (p.details ? " - " + esc(p.details) : ""));
+  if (!act) act = row("note", "النشاط", "لا يوجد تسجيل");
+  $("oSheetBox").innerHTML = '<div class="sheetHd"><b>تفاصيل الموظف</b><button class="x" onclick="oClose()">إغلاق</button></div>' +
+    '<div class="dhead"><span class="oav lg">' + esc(String(p.name).charAt(0)) + '</span><div class="tx"><b>' + esc(p.name) + '</b><span class="sub">' + esc(p.job || "") + '</span><div style="margin-top:6px">' + oBadge(p.status) + '</div></div></div>' +
+    row("hash", "كود الموظف", esc(p.id)) + row("clock", "وقت الدخول", esc(p.inTime || "-")) + row("cal", "التاريخ", esc(String(dash.day).replace(/-/g, "/"))) +
+    row("user", "رقم الهاتف", p.phone ? '<a href="tel:' + esc(p.phone) + '" style="color:var(--navy)">' + esc(p.phone) + '</a>' : "-") +
+    '<div style="font-weight:700;margin-top:14px">آخر الأنشطة</div>' + act;
+  $("oSheet").classList.remove("hidden");
+}
+function oClose(){ $("oSheet").classList.add("hidden"); }
+$("oSheet").onclick = e => { if (e.target === $("oSheet")) oClose(); };
+
+// طلبات الموظفين
+function oReqRow(x){
+  const t = typeOf(x.Type), leave = t.g === "leave";
+  return '<div class="orow" style="box-shadow:none;background:#f8f9fd">' + icoBox(t) +
+    '<span class="tx"><b>' + esc(x.EmpName) + '</b><small>' + esc(x.Type) + ' - ' + rangeTxt(x) + (leave && x.Days ? ' (' + esc(x.Days) + ' يوم)' : '') + '</small></span>' +
+    '<span class="oend">' + sbadge(x.Status) + '</span></div>';
+}
+function oReqs(){
+  const tabs = [["all", "الكل"], ["leave", "إجازات"], ["permit", "أذونات"]];
+  const all = dash.requests || [];
+  const list = all.filter(x => reqF === "all" || typeOf(x.Type).g === reqF);
+  return '<div class="osum" style="background:#e3edff;color:#2f6fe0"><span>طلبات بانتظار القرار</span><span class="n">' + oPend() + '</span></div>' +
+    '<div class="otabs">' + tabs.map(x => '<button class="otab' + (x[0] === reqF ? ' on' : '') + '" onclick="reqF=\'' + x[0] + '\';renderOwner()">' + x[1] + '</button>').join("") + '</div>' +
+    (list.length ? list.map(oReqRow).join("") : '<div class="empty">مفيش طلبات</div>');
+}
+
+// يحتاج متابعة
+function oAlerts(){
+  const late = oPeople("late").length, n = oFollow();
+  const card = (icn, c, bg, title, sub, num, act) => num ? '<button class="oacard" onclick="' + act + '"><span class="ico" style="background:' + bg + ';color:' + c + '">' + ic(icn, 22) + '</span><span class="tx"><b>' + num + ' ' + title + '</b><small>' + sub + '</small></span>' + ic("chev", 18) + '</button>' : "";
+  const cards = card("file", "#2f6fe0", "#e3edff", "طلبات بانتظار القرار", "إجازات وأذونات عند المدير المباشر أو HR", oPend(), "oGo('reqs')") +
+    card("clock", "#b35c00", "#fff1e0", "متأخر عن الحضور", "سجّلوا حضور بعد وقت السماح بدون إذن", late, "oGo('emps','late')") +
+    card("warn", "#c43434", "#fdeaea", "محاولة تسجيل مرفوضة", "تسجيل حضور أو انصراف خارج نطاق الشركة", dash.rejected, "");
+  return '<div class="osum" style="background:#fff4dc;color:#b36b00"><span>الحالات التي تحتاج متابعة</span><span class="n">' + n + '</span></div>' +
+    (cards || '<div class="empty">مفيش حاجة محتاجة متابعة دلوقتي</div>') +
+    '<div class="otip">اضغط على أي حالة لعرض تفاصيلها.</div>';
+}
+
 $("oDate").onchange = loadDash;
 $("oRefresh").onclick = loadDash;
-$("oLogout").onclick = () => { store.del("session"); location.reload(); };
+$("oBell").onclick = () => oGo("alerts");
+$("oLogout").onclick = $("oLogoutM").onclick = () => { store.del("session"); location.reload(); };
 
 // ===== تثبيت التطبيق =====
 let deferredPrompt = null;
