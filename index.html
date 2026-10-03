@@ -256,6 +256,9 @@
   }
 
   /* ===== شاشة صاحب الشركة على الموبايل (شبه شاشات المدير) ===== */
+  [data-ph]{overflow:hidden}
+  [data-ph] img{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit}
+  .ico[data-ph]{border-radius:50%}
   #oPhone{display:none}
   .psum{display:flex;align-items:center;gap:14px;border-radius:18px;padding:16px}
   .psum .psic{width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;flex:none}
@@ -532,6 +535,7 @@
     <aside class="osb">
       <div class="obrand"><span data-ic="cal" data-s="30"></span>منصة حضور</div>
       <div id="oSideNav"></div>
+      <button class="osn" id="oSet"><span data-ic="gear" data-s="20"></span>الإعدادات</button>
       <button class="osout" id="oLogout"><span data-ic="logout" data-s="20"></span>تسجيل الخروج</button>
     </aside>
     <main class="omain">
@@ -689,7 +693,7 @@ function openMain(){
   if (session.role === "Owner") return openOwner();
   $("empShell").classList.remove("hidden");
   myPhoto = store.get("photo_" + session.id) || "";
-  fillHeader(); go("home"); refreshMe(); checkBell(); loadPhoto();
+  fillHeader(); go("home"); refreshMe(); checkBell(); loadPhoto(); loadPhotos();
   checkMsgs(); clearInterval(msgTimer); msgTimer = setInterval(checkMsgs, 45000);
 }
 
@@ -1000,7 +1004,7 @@ function apCard(x){
   }
   if (hr && x.MgrName) chips += '<span class="apchip hr">' + ic("check", 15) + 'وافق المدير: ' + esc(x.MgrName) + '</span>';
   return '<div class="apc" id="ap_' + esc(x.RequestID) + '">' +
-    '<div class="aph"><span class="apav">' + esc(name.charAt(0)) + '</span>' +
+    '<div class="aph"><span class="apav" data-ph="' + esc(x.EmployeeID) + '">' + esc(name.charAt(0)) + '</span>' +
     '<div class="tx"><b>' + esc(name) + '</b><small>' + esc(x.EmployeeID) + '</small></div>' +
     '<span class="aptype" style="background:' + t.bg + ';color:' + t.c + '">' + ic(t.ic, 15) + esc(x.Type) + '</span></div>' +
     '<div class="apd">' + ic("cal", 18) + '<span>' + rangeTxt(x) + (leave && x.Days ? ' (' + esc(x.Days) + ' يوم)' : '') + '</span></div>' +
@@ -1017,6 +1021,7 @@ async function loadPending(){
     hideMsg();
     apCount(r.list.length);
     $("mgrList").innerHTML = r.list.length ? r.list.map(apCard).join("") : '<div class="empty">مفيش طلبات معلّقة</div>';
+    loadPhotos();
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
 }
 $("mgrRefresh").onclick = loadPending;
@@ -1156,9 +1161,10 @@ async function loadInbox(){
     if (!r.ok) throw new Error(r.error);
     inboxList = r.list;
     $("inboxList").innerHTML = r.list.length ? r.list.map((x, i) =>
-      '<button class="rl" onclick="openThread(' + i + ')"><span class="ico b" style="font-weight:700">' + esc(String(x.name).charAt(0)) + '</span><span class="tx"><b>' + esc(x.name) + '</b><small class="ell">' + (x.lastFrom === "HR" ? "أنت: " : "") + esc(x.lastText) + '</small></span>' +
+      '<button class="rl" onclick="openThread(' + i + ')"><span class="ico b" style="font-weight:700" data-ph="' + esc(x.id) + '">' + esc(String(x.name).charAt(0)) + '</span><span class="tx"><b>' + esc(x.name) + '</b><small class="ell">' + (x.lastFrom === "HR" ? "أنت: " : "") + esc(x.lastText) + '</small></span>' +
       (x.unread ? '<span class="cnt">' + x.unread + '</span>' : '') + ic("chev", 18) + '</button>'
     ).join("") : '<div class="empty">مفيش رسايل من الموظفين لسه</div>';
+    loadPhotos();
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
 }
 function openThread(i){ chatEmp = inboxList[i]; go("chat"); }
@@ -1186,6 +1192,43 @@ $("bellBtn").onclick = () => {
 };
 $("bellClose").onclick = () => $("bellPanel").classList.add("hidden");
 
+// ===== صور الموظفين عند المديرين وHR وصاحب الشركة =====
+let phCache = {}, phLast = 0;
+try { phCache = JSON.parse(localStorage.getItem("hr_phc") || "{}") || {}; } catch (e) { phCache = {}; }
+function phSave(){ try { localStorage.setItem("hr_phc", JSON.stringify(phCache)); } catch (e) {} }
+function paintPhotos(){
+  document.querySelectorAll("[data-ph]:not([data-pd])").forEach(el => {
+    const c = phCache[el.getAttribute("data-ph")];
+    if (c && c.p) { el.innerHTML = '<img src="' + c.p + '" alt="">'; el.setAttribute("data-pd", "1"); }
+  });
+}
+let phRaf = 0;
+new MutationObserver(() => { if (!phRaf) phRaf = requestAnimationFrame(() => { phRaf = 0; paintPhotos(); }); })
+  .observe(document.body, { childList: true, subtree: true });
+function phUnpaint(id){
+  document.querySelectorAll("[data-ph]").forEach(el => { if (el.getAttribute("data-ph") === String(id)) el.removeAttribute("data-pd"); });
+}
+function phSetSelf(p){
+  if (!p || !session.id) return;
+  phCache[session.id] = { v: "self", p }; phUnpaint(session.id); phSave(); paintPhotos();
+}
+async function loadPhotos(force){
+  if (["Manager", "HR", "Owner"].indexOf(session.role) === -1) return;
+  if (!force && Date.now() - phLast < 60000) return;
+  phLast = Date.now();
+  try {
+    const have = {};
+    Object.keys(phCache).forEach(k => { have[k] = phCache[k].v; });
+    const r = await call("photos", { ...me(), have });
+    if (!r.ok) return;
+    Object.keys(r.list).forEach(id => {
+      const x = r.list[id];
+      if (x.p) { phCache[id] = { v: x.v, p: x.p }; phUnpaint(id); }
+    });
+    phSave(); paintPhotos();
+  } catch (e) {}
+}
+
 // ===== الصورة الشخصية =====
 function setAvatars(){
   const h = myPhoto ? '<img src="' + myPhoto + '" alt="">' : esc((session.name || "?").charAt(0));
@@ -1194,7 +1237,7 @@ function setAvatars(){
 async function loadPhoto(){
   try {
     const r = await call("getPhoto", me());
-    if (r.ok) { myPhoto = r.photo || ""; store.set("photo_" + session.id, myPhoto); setAvatars(); }
+    if (r.ok) { myPhoto = r.photo || ""; store.set("photo_" + session.id, myPhoto); setAvatars(); phSetSelf(myPhoto); }
   } catch (e) {}
 }
 $("photoBtn").onclick = () => $("photoIn").click();
@@ -1212,7 +1255,7 @@ $("photoIn").onchange = e => {
     try {
       const r = await call("savePhoto", { ...me(), photo: data });
       if (!r.ok) throw new Error(r.error);
-      myPhoto = data; store.set("photo_" + session.id, data); setAvatars();
+      myPhoto = data; store.set("photo_" + session.id, data); setAvatars(); phSetSelf(data);
       show("تم تغيير الصورة ✅", "ok");
     } catch (er) { show(er.message || "حصل خطأ", "err"); }
   };
@@ -1255,7 +1298,8 @@ function openOwner(){
   $("empShell").classList.add("hidden");
   $("ownerView").classList.remove("hidden"); $("appBox").classList.add("owner");
   $("oHello").textContent = "أهلاً " + session.name;
-  $("oAv").textContent = session.name.charAt(0);
+  $("oAv").textContent = session.name.charAt(0); $("oAv").setAttribute("data-ph", session.id); $("oAv").removeAttribute("data-pd");
+  myPhoto = store.get("photo_" + session.id) || ""; phSetSelf(myPhoto); loadPhoto();
   $("oDate").value = oToday();
   hideMsg(); loadDash();
   clearInterval(dashTimer);
@@ -1265,7 +1309,7 @@ async function loadDash(){
   try {
     const r = await call("dashboard", { ...me(), date: $("oDate").value });
     if (!r.ok) throw new Error(r.error);
-    dash = r; renderOwner();
+    dash = r; renderOwner(); loadPhotos();
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
 }
 function oGo(v, f){
@@ -1339,7 +1383,7 @@ function oEList(){
   const list = oPeople(empF).filter(p => !q || (p.name + " " + p.id + " " + p.job).toLowerCase().indexOf(q) !== -1);
   const sub = p => p.status === "absent" ? "بدون تسجيل" : p.status === "leave" ? "إجازة معتمدة" : p.status === "mission" ? "مأمورية" : p.inTime ? "حضر " + p.inTime : "";
   $("oEList").innerHTML = list.length ? list.map(p =>
-    '<button class="orow" onclick="oEmp(\'' + esc(p.id) + '\')"><span class="oav">' + esc(String(p.name).charAt(0)) + '</span>' +
+    '<button class="orow" onclick="oEmp(\'' + esc(p.id) + '\')"><span class="oav" data-ph="' + esc(p.id) + '">' + esc(String(p.name).charAt(0)) + '</span>' +
     '<span class="tx"><b>' + esc(p.name) + '</b><small>' + esc(p.job || p.id) + '</small></span>' +
     '<span class="oend">' + oBadge(p.status) + '<small>' + sub(p) + '</small></span></button>').join("") : '<div class="empty">مفيش موظفين</div>';
 }
@@ -1354,7 +1398,7 @@ function oEmp(id){
   if (p.status === "mission") act += row("brief", "كلّفه", esc(p.by || "-") + (p.details ? " - " + esc(p.details) : ""));
   if (!act) act = row("note", "النشاط", "لا يوجد تسجيل");
   $("oSheetBox").innerHTML = '<div class="sheetHd"><b>تفاصيل الموظف</b><button class="x" onclick="oClose()">إغلاق</button></div>' +
-    '<div class="dhead"><span class="oav lg">' + esc(String(p.name).charAt(0)) + '</span><div class="tx"><b>' + esc(p.name) + '</b><span class="sub">' + esc(p.job || "") + '</span><div style="margin-top:6px">' + oBadge(p.status) + '</div></div></div>' +
+    '<div class="dhead"><span class="oav lg" data-ph="' + esc(p.id) + '">' + esc(String(p.name).charAt(0)) + '</span><div class="tx"><b>' + esc(p.name) + '</b><span class="sub">' + esc(p.job || "") + '</span><div style="margin-top:6px">' + oBadge(p.status) + '</div></div></div>' +
     row("hash", "كود الموظف", esc(p.id)) + row("clock", "وقت الدخول", esc(p.inTime || "-")) + row("cal", "التاريخ", esc(String(dash.day).replace(/-/g, "/"))) +
     row("user", "رقم الهاتف", p.phone ? '<a href="tel:' + esc(p.phone) + '" style="color:var(--navy)">' + esc(p.phone) + '</a>' : "-") +
     '<div style="font-weight:700;margin-top:14px">آخر الأنشطة</div>' + act;
@@ -1393,6 +1437,7 @@ function oAlerts(){
 
 $("oDate").onchange = loadDash;
 $("oRefresh").onclick = loadDash;
+$("oSet").onclick = () => $("setPanel").classList.remove("hidden");
 $("oBell").onclick = () => oGo("alerts");
 $("oLogout").onclick = $("oLogoutM").onclick = () => { store.del("session"); location.reload(); };
 
@@ -1426,7 +1471,7 @@ function pHome(){
   const dtxt = new Date(dash.day + "T12:00:00").toLocaleDateString("ar-EG-u-nu-latn", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
   const tile = (k, label, icn, bg, col, num, unit) => '<button class="otile" style="background:' + bg + '" onclick="' + k + '"><div class="otl" style="color:' + col + '">' + ic(icn, 20) + label + '</div>' +
     '<div class="otn" style="color:' + col + '">' + num + (unit ? ' <span style="font-size:14px;font-weight:700">' + unit + '</span>' : '') + '</div></button>';
-  return '<div class="hdr"><div class="top"><div class="avatar">' + esc(String(session.name).charAt(0)) + '</div>' +
+  return '<div class="hdr"><div class="top"><div class="avatar" data-ph="' + esc(session.id) + '">' + esc(String(session.name).charAt(0)) + '</div>' +
     '<button class="bell" onclick="pGo(\'alerts\',\'\',true)">' + ic("bell", 26) + (n ? '<i class="obadge" style="top:0;left:auto;right:0">' + n + '</i>' : '') + '</button>' +
     '<button class="bell" style="margin-inline-start:auto" onclick="pGo(\'more\',\'\',true)" aria-label="المزيد">' + ic("menu", 26) + '</button></div>' +
     '<img src="header.jpg" class="banner" alt="" onerror="this.style.display=\'none\'">' +
@@ -1468,7 +1513,7 @@ function pEList(){
   const list = oPeople(f).filter(p => !q || (p.name + " " + p.id + " " + p.job).toLowerCase().indexOf(q) !== -1);
   const sub = p => p.status === "absent" ? "بدون تسجيل" : p.status === "leave" ? "إجازة معتمدة" : p.status === "mission" ? "مأمورية" : p.inTime || "";
   $("pEList").innerHTML = list.length ? list.map(p =>
-    '<button class="orow" onclick="pGo(\'emp\',\'' + esc(p.id) + '\')"><span class="oav">' + esc(String(p.name).charAt(0)) + '</span>' +
+    '<button class="orow" onclick="pGo(\'emp\',\'' + esc(p.id) + '\')"><span class="oav" data-ph="' + esc(p.id) + '">' + esc(String(p.name).charAt(0)) + '</span>' +
     '<span class="tx"><b>' + esc(p.name) + '</b><small>' + esc(p.job || p.id) + '</small></span>' +
     '<span class="oend">' + oBadge(p.status) + '<small>' + sub(p) + '</small></span>' + ic("chev", 18) + '</button>').join("") : '<div class="empty">مفيش موظفين</div>';
 }
@@ -1503,6 +1548,7 @@ function pMore(){
     r("user", "o", "الموظفون الغائبون", "من لم يسجّل اليوم", "pGo('emps','absent')") +
     r("brief", "o", "المأموريات", "الموظفون في مأمورية اليوم", "pGo('emps','mission')") +
     r("refresh", "b", "تحديث البيانات", "تحميل آخر بيانات اليوم", "loadDash()") +
+    r("gear", "o", "الإعدادات", "غيّر صورتك أو الرقم السري", "$('setPanel').classList.remove('hidden')") +
     '<button class="rl" id="pOut" onclick="store.del(\'session\');location.reload()"><span class="ico" style="background:#fdeaea;color:#c43434">' + ic("logout", 22) + '</span><span class="tx"><b style="color:#c43434">تسجيل الخروج</b></span></button></div>';
 }
 
@@ -1516,7 +1562,7 @@ function pEmp(){
   else if (p.inTime) act += row("clock", "الانصراف", "لم يتم بعد");
   if (!act) act = row("note", "النشاط", "لا يوجد تسجيل");
   const note = p.status === "mission" ? "كلّفه: " + esc(p.by || "-") + (p.details ? " - " + esc(p.details) : "") : "لا توجد ملاحظات عليه";
-  return pBar("تفاصيل الموظف", true) + '<div class="pad"><div class="pdet"><div class="tx"><b>' + esc(p.name) + '</b><span class="sub">' + esc(p.job || "") + '</span><div style="margin-top:8px">' + oBadge(p.status) + '</div></div><span class="oav lg">' + esc(String(p.name).charAt(0)) + '</span></div>' +
+  return pBar("تفاصيل الموظف", true) + '<div class="pad"><div class="pdet"><div class="tx"><b>' + esc(p.name) + '</b><span class="sub">' + esc(p.job || "") + '</span><div style="margin-top:8px">' + oBadge(p.status) + '</div></div><span class="oav lg" data-ph="' + esc(p.id) + '">' + esc(String(p.name).charAt(0)) + '</span></div>' +
     '<div class="pbox"><div><small>' + ic("clock", 16) + 'وقت الدخول</small><b>' + esc(p.inTime || "-") + '</b></div><div><small>' + ic("cal", 16) + 'تاريخ اليوم</small><b>' + esc(String(dash.day).replace(/-/g, "/")) + '</b></div></div>' +
     '<div class="pcard">' + row("hash", "كود الموظف", esc(p.id)) + row("user", "رقم الهاتف", p.phone ? '<a href="tel:' + esc(p.phone) + '" style="color:var(--navy)">' + esc(p.phone) + '</a>' : "-") + '</div>' +
     '<div class="pcard"><b>آخر الأنشطة</b>' + act + '</div><div class="otip">ملاحظة: ' + note + '</div></div>';
