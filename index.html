@@ -145,6 +145,20 @@
   .pm:last-child{border:none}.pm .pt{flex:1;font-weight:600}.pm .pi{color:#2f6bff;display:flex}
   .pm>span:last-child:not(.pt){color:var(--muted);display:flex}
   .pm.out,.pm.out .pi{color:var(--red)}
+  .ni{position:relative}
+  .ndot{position:absolute;top:2px;right:calc(50% - 20px);width:10px;height:10px;border-radius:50%;background:#ff4d4d;border:2px solid var(--navy)}
+  .mdot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#ff4d4d;margin-inline-start:8px}
+  .chat{display:flex;flex-direction:column;gap:8px}
+  .bub{max-width:82%;padding:10px 12px 6px;border-radius:16px;font-size:15px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+  .bub small{display:block;font-size:11px;opacity:.7;margin-top:2px}
+  .bub.me{align-self:flex-start;background:var(--navy);color:#fff;border-bottom-right-radius:4px}
+  .bub.th{align-self:flex-end;background:#fff;color:var(--ink);border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(15,30,61,.06)}
+  .chatbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;padding:10px;display:flex;gap:8px;align-items:flex-end;border-top:1px solid var(--line);z-index:20}
+  .chatbar textarea{flex:1;min-height:46px;max-height:110px;resize:none}
+  .chatbar button{background:var(--navy);color:#fff;border-radius:12px;height:46px;padding:0 16px;display:flex;align-items:center}
+  .cnt{background:#ee4b4b;color:#fff;border-radius:99px;min-width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;padding:0 6px}
+  .ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;display:block}
+  .inbox{display:grid;gap:10px}
 </style>
 </head>
 <body>
@@ -300,10 +314,24 @@
         <button class="pm" onclick="go('att')"><span class="pi" data-ic="clock" data-s="26"></span><span class="pt">سجل الحضور والانصراف</span><span data-ic="chev" data-s="20"></span></button>
         <button class="pm" onclick="go('req')"><span class="pi" data-ic="file" data-s="26"></span><span class="pt">طلباتي</span><span data-ic="chev" data-s="20"></span></button>
         <button class="pm" id="setBtn"><span class="pi" data-ic="gear" data-s="26"></span><span class="pt">الإعدادات</span><span data-ic="chev" data-s="20"></span></button>
-        <button class="pm" id="helpBtn"><span class="pi" data-ic="help" data-s="26"></span><span class="pt">مساعدة</span><span data-ic="chev" data-s="20"></span></button>
+        <button class="pm" id="helpBtn"><span class="pi" data-ic="help" data-s="26"></span><span class="pt">مساعدة<i class="mdot hidden" id="helpDot"></i></span><span data-ic="chev" data-s="20"></span></button>
         <button class="pm out" id="logoutBtn"><span class="pi" data-ic="logout" data-s="26"></span><span class="pt">تسجيل الخروج</span></button>
       </div>
       <input type="file" accept="image/*" id="photoIn" class="hidden">
+    </section>
+
+    <section id="pgInbox" class="hidden">
+      <div class="pgbar">الرسايل</div>
+      <div class="pad"><div class="inbox" id="inboxList"></div></div>
+    </section>
+
+    <section id="pgChat" class="hidden">
+      <div class="pgbar"><span id="chatTitle">مساعدة</span><button class="back" onclick="back()" aria-label="رجوع" data-ic="back" data-s="24"></button></div>
+      <div class="pad" style="padding-bottom:90px"><div class="chat" id="chatList"></div></div>
+      <div class="chatbar">
+        <textarea id="chatIn" rows="1" placeholder="اكتب رسالتك..."></textarea>
+        <button id="chatSend" aria-label="إرسال" data-ic="send" data-s="22"></button>
+      </div>
     </section>
 
     <nav class="nav" id="nav"></nav>
@@ -443,6 +471,7 @@ const I = {
   list:'<path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/>',
   gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/>',
+  msg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
   shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>'
 };
 function ic(n, s){ return '<svg width="' + (s || 22) + '" height="' + (s || 22) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + I[n] + '</svg>'; }
@@ -522,6 +551,7 @@ function openMain(){
   $("empShell").classList.remove("hidden");
   myPhoto = store.get("photo_" + session.id) || "";
   fillHeader(); go("home"); refreshMe(); checkBell(); loadPhoto();
+  checkMsgs(); clearInterval(msgTimer); msgTimer = setInterval(checkMsgs, 45000);
 }
 
 async function refreshMe(){
@@ -548,27 +578,36 @@ function balUI(){
 }
 
 // ===== التنقل =====
-const PG = { home: "pgHome", req: "pgReq", types: "pgTypes", form: "pgForm", detail: "pgDetail", att: "pgAtt", mission: "pgMission", approve: "pgApprove", profile: "pgProfile" };
+const PG = { inbox: "pgInbox", chat: "pgChat", home: "pgHome", req: "pgReq", types: "pgTypes", form: "pgForm", detail: "pgDetail", att: "pgAtt", mission: "pgMission", approve: "pgApprove", profile: "pgProfile" };
 let cur = null, hist = [];
 function go(p, how){
   if (how === "root") hist = [];
   else if (how !== "back" && cur && cur !== p) hist.push(cur);
   cur = p;
   Object.keys(PG).forEach(k => $(PG[k]).classList.toggle("hidden", k !== p));
-  const items = [["home", "الرئيسية", "home"], ["req", "طلباتي", "file"]];
-  if (session.role === "Manager" || session.role === "HR") items.push(["approve", "الموافقات", "shield"]);
-  items.push(["profile", "الملف الشخصي", "user"]);
-  const act = p === "att" ? "profile" : p === "mission" ? "home" : (p === "types" || p === "form" || p === "detail") ? "req" : p;
-  $("nav").innerHTML = items.map(i => '<button class="ni' + (i[0] === act ? ' on' : '') + '" onclick="go(\'' + i[0] + '\',\'root\')">' + ic(i[2], 24) + '<span>' + i[1] + '</span></button>').join("");
+  drawNav(p);
   hideMsg(); window.scrollTo(0, 0);
   if (p === "req") { loadMine(); balUI(); }
   if (p === "types") renderTypes();
   if (p === "mission") loadMissions();
   if (p === "att") { if (how !== "back") attMonth = curMonth(); loadAtt(); }
   if (p === "approve") loadPending();
+  if (p === "inbox") loadInbox();
+  $("nav").classList.toggle("hidden", p === "chat");
+  clearInterval(chatTimer);
+  if (p === "chat") { loadChat(); chatTimer = setInterval(() => { if (cur === "chat") loadChat(); }, 15000); }
   if (p === "profile") fillProfile();
 }
 function back(){ go(hist.pop() || "home", "back"); }
+let msgUnread = 0, chatEmp = null, chatTok = 0, chatTimer = null, msgTimer = null;
+function drawNav(p){
+  const items = [["home", "الرئيسية", "home"], ["req", "طلباتي", "file"]];
+  if (session.role === "Manager" || session.role === "HR") items.push(["approve", "الموافقات", "shield"]);
+  if (session.role === "HR") items.push(["inbox", "الرسايل", "msg"]);
+  items.push(["profile", "الملف الشخصي", "user"]);
+  const act = p === "chat" ? (session.role === "HR" ? "inbox" : "profile") : p === "att" ? "profile" : p === "mission" ? "home" : (p === "types" || p === "form" || p === "detail") ? "req" : p;
+  $("nav").innerHTML = items.map(i => '<button class="ni' + (i[0] === act ? ' on' : '') + '" onclick="go(\'' + i[0] + '\',\'root\')">' + ic(i[2], 24) + ((i[0] === "inbox" || (i[0] === "profile" && session.role !== "HR")) && msgUnread ? '<i class="ndot"></i>' : '') + '<span>' + i[1] + '</span></button>').join("");
+}
 function fillProfile(){
   setAvatars();
   $("pName").textContent = session.name; $("iName").textContent = session.name; $("iJob").textContent = session.jobTitle || "-";
@@ -579,7 +618,7 @@ function fillProfile(){
 }
 $("infoBtn").onclick = () => { fillProfile(); $("infoPanel").classList.remove("hidden"); };
 $("infoClose").onclick = () => $("infoPanel").classList.add("hidden");
-$("helpBtn").onclick = () => $("helpPanel").classList.remove("hidden");
+$("helpBtn").onclick = () => { if (session.role === "HR") $("helpPanel").classList.remove("hidden"); else { chatEmp = null; go("chat"); } };
 $("helpClose").onclick = () => $("helpPanel").classList.add("hidden");
 $("setBtn").onclick = () => $("setPanel").classList.remove("hidden");
 $("setClose").onclick = () => $("setPanel").classList.add("hidden");
@@ -902,6 +941,60 @@ async function loadAtt(){
 }
 $("mPrev").onclick = () => shiftMonth(-1);
 $("mNext").onclick = () => shiftMonth(1);
+
+// ===== رسايل HR =====
+function fmtDT(v){
+  const d = new Date(v);
+  return isNaN(d) ? "" : d.toLocaleDateString("en-CA").slice(5) + " " + d.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" });
+}
+async function checkMsgs(){
+  try {
+    const r = await call("unreadCount", me());
+    if (!r.ok) return;
+    msgUnread = r.count;
+    $("helpDot").classList.toggle("hidden", !(msgUnread && session.role !== "HR"));
+    if (cur) drawNav(cur);
+  } catch (e) {}
+}
+async function loadChat(){
+  const tok = ++chatTok, hr = session.role === "HR";
+  try {
+    const r = hr ? await call("hrThread", { ...me(), employeeId: chatEmp.id }) : await call("myMessages", me());
+    if (tok !== chatTok) return;
+    if (!r.ok) throw new Error(r.error);
+    $("chatTitle").textContent = hr ? r.name : "مساعدة - مدير HR";
+    $("chatList").innerHTML = r.list.length ? r.list.map(m => {
+      const mine = hr ? m.from === "HR" : m.from === "Employee";
+      return '<div class="bub ' + (mine ? 'me' : 'th') + '">' + esc(m.text) + '<small>' + fmtDT(m.at) + '</small></div>';
+    }).join("") : '<div class="empty">' + (hr ? "مفيش رسايل" : "ابعت رسالتك لمدير HR وهيرد عليك هنا.") + '</div>';
+    window.scrollTo(0, document.body.scrollHeight);
+    checkMsgs();
+  } catch (e) { show(e.message || "حصل خطأ", "err"); }
+}
+$("chatSend").onclick = async () => {
+  const text = $("chatIn").value.trim();
+  if (!text) return;
+  $("chatSend").disabled = true;
+  try {
+    const r = await call("sendMessage", { ...me(), text, employeeId: session.role === "HR" && chatEmp ? chatEmp.id : undefined });
+    if (!r.ok) throw new Error(r.error);
+    $("chatIn").value = ""; await loadChat();
+  } catch (e) { show(e.message || "حصل خطأ", "err"); }
+  finally { $("chatSend").disabled = false; }
+};
+let inboxList = [];
+async function loadInbox(){
+  try {
+    const r = await call("hrInbox", me());
+    if (!r.ok) throw new Error(r.error);
+    inboxList = r.list;
+    $("inboxList").innerHTML = r.list.length ? r.list.map((x, i) =>
+      '<button class="rl" onclick="openThread(' + i + ')"><span class="ico b" style="font-weight:700">' + esc(String(x.name).charAt(0)) + '</span><span class="tx"><b>' + esc(x.name) + '</b><small class="ell">' + (x.lastFrom === "HR" ? "أنت: " : "") + esc(x.lastText) + '</small></span>' +
+      (x.unread ? '<span class="cnt">' + x.unread + '</span>' : '') + ic("chev", 18) + '</button>'
+    ).join("") : '<div class="empty">مفيش رسايل من الموظفين لسه</div>';
+  } catch (e) { show(e.message || "حصل خطأ", "err"); }
+}
+function openThread(i){ chatEmp = inboxList[i]; go("chat"); }
 
 // ===== جرس الإشعارات (داخل التطبيق بس) =====
 let bellData = [];
