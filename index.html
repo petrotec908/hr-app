@@ -328,7 +328,7 @@
       </div>
       <div class="rowlinks">
         <button class="rl" onclick="go('req')"><span class="ico b" data-ic="file"></span><span class="tx"><b>طلباتي</b><small>تقديم إجازة أو إذن ومتابعة حالتها</small></span><span data-ic="chev" data-s="20"></span></button>
-        <button class="rl" onclick="go('mission')"><span class="ico o" data-ic="brief"></span><span class="tx"><b>المأمورية</b><small>سجّل مأمورية واليوم يتحسبلك حضور</small></span><span data-ic="chev" data-s="20"></span></button>
+        <button class="rl" id="missionRow" onclick="go('mission')"><span class="ico o" data-ic="brief"></span><span class="tx"><b>المأمورية</b><small>سجّل مأمورية واليوم يتحسبلك حضور</small></span><span data-ic="chev" data-s="20"></span></button>
       </div>
     </section>
 
@@ -375,6 +375,16 @@
     <section id="pgDetail" class="hidden">
       <div class="pgbar">تفاصيل الطلب<button class="back" onclick="back()" aria-label="رجوع" data-ic="back" data-s="24"></button></div>
       <div class="pad" id="detailBox"></div>
+    </section>
+
+    <section id="pgTeam" class="hidden">
+      <div class="pgbar"><span id="teamTitle">الموظفون</span><button class="back" onclick="back()" aria-label="رجوع" data-ic="back" data-s="24"></button></div>
+      <div class="pad">
+        <div id="teamSum"></div>
+        <div class="otabs" id="teamDepts"></div>
+        <div class="osrch"><span data-ic="search" data-s="20"></span><input id="teamQ" placeholder="ابحث بالاسم أو الكود..."></div>
+        <div id="teamList"></div>
+      </div>
     </section>
 
     <section id="pgMission" class="hidden">
@@ -558,6 +568,8 @@
     <nav class="nav hidden" id="pNav"></nav>
   </div>
 
+  <div id="teamSheet" class="sheet hidden"><div class="sheetBox" id="teamBox"></div></div>
+
   <div id="oSheet" class="sheet hidden"><div class="sheetBox" id="oSheetBox"></div></div>
 
   <div id="msg"></div>
@@ -694,7 +706,7 @@ function openMain(){
   if (session.role === "Owner") return openOwner();
   $("empShell").classList.remove("hidden");
   myPhoto = store.get("photo_" + session.id) || "";
-  fillHeader(); go("home"); refreshMe(); checkBell(); loadPhoto(); loadPhotos();
+  setLeadRow(); fillHeader(); go("home"); refreshMe(); checkBell(); loadPhoto(); loadPhotos();
   checkMsgs(); clearInterval(msgTimer); msgTimer = setInterval(checkMsgs, 45000);
 }
 
@@ -722,7 +734,7 @@ function balUI(){
 }
 
 // ===== التنقل =====
-const PG = { inbox: "pgInbox", chat: "pgChat", home: "pgHome", req: "pgReq", types: "pgTypes", form: "pgForm", detail: "pgDetail", att: "pgAtt", mission: "pgMission", missionNew: "pgMissionNew", approve: "pgApprove", profile: "pgProfile" };
+const PG = { inbox: "pgInbox", chat: "pgChat", home: "pgHome", req: "pgReq", types: "pgTypes", form: "pgForm", detail: "pgDetail", att: "pgAtt", mission: "pgMission", missionNew: "pgMissionNew", team: "pgTeam", approve: "pgApprove", profile: "pgProfile" };
 let cur = null, hist = [];
 function go(p, how){
   if (how === "root") hist = [];
@@ -734,6 +746,7 @@ function go(p, how){
   if (p === "req") { loadMine(); balUI(); }
   if (p === "types") renderTypes();
   if (p === "mission") loadMissions();
+  if (p === "team") loadTeam();
   if (p === "missionNew") { $("mDate").value = new Date().toLocaleDateString("en-CA"); $("mBy").value = ""; $("mDetails").value = ""; }
   if (p === "att") { if (how !== "back") attMonth = curMonth(); loadAtt(); }
   if (p === "approve") loadPending();
@@ -750,7 +763,7 @@ function drawNav(p){
   if (session.role === "Manager" || session.role === "HR") items.push(["approve", "الطلبات", "shield"]);
   if (session.role === "HR") items.push(["inbox", "الرسايل", "msg"]);
   items.push(["profile", "الملف الشخصي", "user"]);
-  const act = p === "chat" ? (session.role === "HR" ? "inbox" : "profile") : p === "att" ? "profile" : (p === "mission" || p === "missionNew") ? "home" : (p === "types" || p === "form" || p === "detail") ? "req" : p;
+  const act = p === "chat" ? (session.role === "HR" ? "inbox" : "profile") : p === "att" ? "profile" : (p === "mission" || p === "missionNew" || p === "team") ? "home" : (p === "types" || p === "form" || p === "detail") ? "req" : p;
   $("nav").innerHTML = items.map(i => '<button class="ni' + (i[0] === act ? ' on' : '') + '" onclick="go(\'' + i[0] + '\',\'root\')">' + ic(i[2], 24) + ((i[0] === "inbox" || (i[0] === "profile" && session.role !== "HR")) && msgUnread ? '<i class="ndot"></i>' : '') + '<span>' + i[1] + '</span></button>').join("");
 }
 function fillProfile(){
@@ -831,6 +844,59 @@ function showSuccess(type){
   $("okView").classList.remove("hidden");
 }
 $("okBack").onclick = () => $("okView").classList.add("hidden");
+
+// ===== الموظفون (HR: كل الشركة، المدير: فريقه) =====
+// المدير والـ HR مابيطلعوش مأموريات، فبدل زرار المأمورية بيظهر زرار الموظفين
+function setLeadRow(){
+  const lead = session.role === "HR" || session.role === "Manager", hr = session.role === "HR";
+  const row = $("missionRow");
+  row.onclick = () => go(lead ? "team" : "mission");
+  row.querySelector(".ico").innerHTML = ic(lead ? "user" : "brief", 22);
+  row.querySelector(".tx").innerHTML = lead
+    ? '<b>' + (hr ? 'كل الموظفين' : 'فريقي') + '</b><small>' + (hr ? 'بيانات كل موظفي الشركة' : 'الموظفين التابعين لك وبياناتهم') + '</small>'
+    : '<b>المأمورية</b><small>سجّل مأمورية واليوم يتحسبلك حضور</small>';
+}
+let teamAll = [], teamDept = "all";
+async function loadTeam(){
+  $("teamTitle").textContent = session.role === "HR" ? "كل الموظفين" : "فريقي";
+  teamDept = "all"; $("teamQ").value = "";
+  show("جاري التحميل...", "info");
+  try {
+    const r = await call("team", me());
+    if (!r.ok) throw new Error(r.error);
+    hideMsg(); teamAll = r.list; renderTeam(); loadPhotos();
+  } catch (e) { show(e.message || "حصل خطأ", "err"); }
+}
+function renderTeam(){
+  const depts = Array.from(new Set(teamAll.map(x => x.dept).filter(Boolean))).sort();
+  $("teamDepts").innerHTML = depts.length > 1 ? [["all", "الكل"]].concat(depts.map(d => [d, d])).map(x =>
+    '<button class="otab' + (x[0] === teamDept ? ' on' : '') + '" data-d="' + esc(x[0]) + '" onclick="teamDept=this.dataset.d;renderTeam()">' + esc(x[1]) + '</button>').join("") : "";
+  const q = $("teamQ").value.trim().toLowerCase();
+  const list = teamAll.filter(x => (teamDept === "all" || x.dept === teamDept) && (!q || (x.name + " " + x.id + " " + x.job + " " + x.dept).toLowerCase().indexOf(q) !== -1));
+  $("teamSum").innerHTML = '<div class="psum" style="background:#e3ecff"><span class="psic" style="color:#3b5bdb">' + ic("user", 28) + '</span><div class="tx"><small style="color:#3b5bdb">' +
+    (session.role === "HR" ? "إجمالي الموظفين" : "موظفو فريقك") + '</small><b style="color:#3b5bdb">' + list.length + ' <span>موظف</span></b></div></div>';
+  $("teamList").innerHTML = list.length ? list.map(x =>
+    '<button class="orow" onclick="openTeam(\'' + esc(x.id) + '\')"><span class="oav" data-ph="' + esc(x.id) + '">' + esc(String(x.name).charAt(0)) + '</span>' +
+    '<span class="tx"><b>' + esc(x.name) + '</b><small>' + esc(x.job || x.id) + (x.dept ? ' - ' + esc(x.dept) : '') + '</small></span>' + ic("chev", 18) + '</button>').join("")
+    : '<div class="empty">' + (teamAll.length ? "مفيش نتايج" : "مفيش موظفين تابعين لك لسه") + '</div>';
+}
+$("teamQ").oninput = renderTeam;
+function openTeam(id){
+  const x = teamAll.find(e => e.id === id);
+  if (!x) return;
+  const row = (icn, l, v) => '<div class="drow"><span>' + ic(icn, 20) + l + '</span><b>' + v + '</b></div>';
+  const roleTxt = { Manager: "مدير", HR: "HR", Employee: "موظف" }[x.role] || "";
+  $("teamBox").innerHTML = '<div class="sheetHd"><b>بيانات الموظف</b><button class="x" onclick="$(\'teamSheet\').classList.add(\'hidden\')">إغلاق</button></div>' +
+    '<div class="dhead"><span class="oav lg" data-ph="' + esc(x.id) + '">' + esc(String(x.name).charAt(0)) + '</span><div class="tx"><b>' + esc(x.name) + '</b>' +
+    (roleTxt ? '<span class="badge blue">' + roleTxt + '</span>' : '') + '</div></div>' +
+    row("hash", "الكود", esc(x.id)) + row("user", "الوظيفة", esc(x.job || "-")) + row("brief", "الإدارة", esc(x.dept || "-")) +
+    row("user", "المدير المباشر", esc(x.manager || "-")) +
+    row("clock", "التليفون", x.phone ? '<a href="tel:' + esc(x.phone) + '" style="color:var(--navy)">' + esc(x.phone) + '</a>' : "-") +
+    row("cal", "رصيد الإجازات", esc(x.balance) + " يوم") +
+    (x.insurance !== undefined ? row("note", "الرقم التأميني", esc(x.insurance || "-")) : "");
+  $("teamSheet").classList.remove("hidden");
+}
+$("teamSheet").onclick = e => { if (e.target === $("teamSheet")) $("teamSheet").classList.add("hidden"); };
 
 // ===== الطلبات =====
 const WEEKEND = [5, 6]; // الجمعة والسبت
