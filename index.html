@@ -502,6 +502,7 @@
       <div class="prow"><span class="sub">الاسم</span><b id="iName"></b></div>
       <div class="prow"><span class="sub">الوظيفة</span><b id="iJob"></b></div>
       <div class="prow"><span class="sub">الإدارة</span><b id="pDept"></b></div>
+      <div class="prow" id="rowMgr"><span class="sub">المدير المباشر</span><b id="pMgr"></b></div>
       <div class="prow"><span class="sub">الكود</span><b id="pId"></b></div>
       <div class="prow"><span class="sub">التليفون</span><b id="pPhone"></b></div>
       <div class="prow"><span class="sub">الرقم التأميني</span><b id="pIns"></b></div>
@@ -691,7 +692,7 @@ $("loginBtn").onclick = async () => {
   try {
     const r = await call("login", { id, pin });
     if (!r.ok) throw new Error(r.error);
-    session = { id, pin, name: r.name, role: r.role, jobTitle: r.jobTitle || "", phone: r.phone || "", department: r.department || "", insurance: r.insurance || "", available: r.available };
+    session = { id, pin, name: r.name, role: r.role, jobTitle: r.jobTitle || "", phone: r.phone || "", department: r.department || "", insurance: r.insurance || "", manager: r.manager || "", available: r.available };
     store.set("session", JSON.stringify(session));
     hideMsg(); openMain();
   } catch (e) {
@@ -714,7 +715,7 @@ async function refreshMe(){
   try {
     const r = await call("login", me());
     if (!r.ok) return;
-    Object.assign(session, { name: r.name, role: r.role, jobTitle: r.jobTitle || "", phone: r.phone || "", department: r.department || "", insurance: r.insurance || "", available: r.available });
+    Object.assign(session, { name: r.name, role: r.role, jobTitle: r.jobTitle || "", phone: r.phone || "", department: r.department || "", insurance: r.insurance || "", manager: r.manager || "", available: r.available });
     store.set("session", JSON.stringify(session));
     fillHeader(); balUI();
   } catch (e) {}
@@ -773,6 +774,8 @@ function fillProfile(){
   $("pId").textContent = session.id;
   $("pPhone").textContent = session.phone || "-";
   $("pDept").textContent = session.department || "-";
+  $("rowMgr").classList.toggle("hidden", session.role !== "Employee");
+  $("pMgr").textContent = session.manager || "-";
   $("pIns").textContent = session.insurance || "-";
 }
 $("infoBtn").onclick = () => { fillProfile(); $("infoPanel").classList.remove("hidden"); };
