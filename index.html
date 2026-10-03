@@ -161,6 +161,24 @@
   .inbox{display:grid;gap:10px}
   .bub .meta{display:flex;align-items:center;gap:10px;font-size:11px;margin-top:2px}
   .bub .meta span:first-child{opacity:.7}
+  .aphd{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+  .aphd b{font-size:15px}
+  .rfb{background:#fff;color:var(--navy);border:1.5px solid var(--line);border-radius:12px;padding:8px 14px;font-size:14px;font-weight:600}
+  .apc{background:#fff;border-radius:18px;padding:14px;margin-top:12px;box-shadow:0 2px 10px rgba(15,30,61,.06)}
+  .aph{display:flex;align-items:center;gap:12px}
+  .aph .tx{flex:1;min-width:0}.aph b{display:block;font-size:16px}.aph small{color:var(--muted);font-size:12px}
+  .apav{width:44px;height:44px;border-radius:50%;background:#e8ecff;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;flex:none}
+  .aptype{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:5px 10px 5px 12px;font-size:12px;font-weight:700;flex:none}
+  .apd{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:14px;color:var(--ink)}
+  .apd svg{color:var(--muted);flex:none}
+  .apr{margin-top:8px;font-size:13px;color:var(--muted);line-height:1.7;background:#f6f8fc;border-radius:10px;padding:8px 10px}
+  .apchip{display:inline-flex;align-items:center;gap:6px;margin-top:10px;border-radius:10px;padding:6px 10px;font-size:13px;font-weight:600;background:#e2f7ec;color:#14804a}
+  .apchip.low{background:#fdeaea;color:#c43434}
+  .apchip.hr{background:#e8ecff;color:var(--navy);margin-inline-start:6px}
+  .apa{display:flex;gap:10px;margin-top:14px}
+  .apb{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:12px;font-size:15px;font-weight:700;color:#fff}
+  .apb.ok{background:var(--green)}.apb.no{background:var(--red)}
+  .apb:disabled{opacity:.6}
   .rcp{display:inline-flex;align-items:center;gap:3px;color:rgba(255,255,255,.6)}
   .rcp.seen{color:#4ade80;font-weight:700}
 </style>
@@ -293,9 +311,9 @@
     </section>
 
     <section id="pgApprove" class="hidden">
-      <div class="pgbar">الموافقات</div>
+      <div class="pgbar">الطلبات</div>
       <div class="pad">
-        <button class="primary" id="mgrRefresh" style="margin-top:0">تحديث الطلبات المعلّقة</button>
+        <div class="aphd"><b id="apCount"></b><button class="rfb" id="mgrRefresh">تحديث</button></div>
         <div id="mgrList"></div>
       </div>
     </section>
@@ -460,6 +478,7 @@ const I = {
   logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/>',
   login:'<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5M15 12H3"/>',
   check:'<path d="M5 12l5 5 9-10"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>',
   pin:'<path d="M12 22s7-6 7-12a7 7 0 0 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
   brief:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',
   chev:'<path d="M15 6l-6 6 6 6"/>',
@@ -607,7 +626,7 @@ function back(){ go(hist.pop() || "home", "back"); }
 let msgUnread = 0, chatEmp = null, chatTok = 0, chatTimer = null, msgTimer = null;
 function drawNav(p){
   const items = [["home", "الرئيسية", "home"], ["req", "طلباتي", "file"]];
-  if (session.role === "Manager" || session.role === "HR") items.push(["approve", "الموافقات", "shield"]);
+  if (session.role === "Manager" || session.role === "HR") items.push(["approve", "الطلبات", "shield"]);
   if (session.role === "HR") items.push(["inbox", "الرسايل", "msg"]);
   items.push(["profile", "الملف الشخصي", "user"]);
   const act = p === "chat" ? (session.role === "HR" ? "inbox" : "profile") : p === "att" ? "profile" : p === "mission" ? "home" : (p === "types" || p === "form" || p === "detail") ? "req" : p;
@@ -853,30 +872,51 @@ async function cancelReq(requestId){
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
 }
 
-// ===== الموافقات (مدير / HR) =====
+// ===== الطلبات المعلّقة (مدير / HR) =====
+function apCount(n){ $("apCount").textContent = n ? n + (n === 1 ? " طلب معلّق" : " طلبات معلّقة") : ""; }
+function apCard(x){
+  const t = typeOf(x.Type), leave = t.g === "leave", sp = splitReason(x), hr = session.role === "HR";
+  const name = String(x.EmpName || x.EmployeeID);
+  let chips = "";
+  if (x.EmpBalance != null) {
+    const low = (Number(x.Days) || 0) > Number(x.EmpBalance);
+    chips += '<span class="apchip' + (low ? ' low' : '') + '">' + ic("cal", 15) + 'رصيد الموظف المتاح: ' + esc(x.EmpBalance) + ' يوم</span>';
+  }
+  if (hr && x.MgrName) chips += '<span class="apchip hr">' + ic("check", 15) + 'وافق المدير: ' + esc(x.MgrName) + '</span>';
+  return '<div class="apc" id="ap_' + esc(x.RequestID) + '">' +
+    '<div class="aph"><span class="apav">' + esc(name.charAt(0)) + '</span>' +
+    '<div class="tx"><b>' + esc(name) + '</b><small>' + esc(x.EmployeeID) + '</small></div>' +
+    '<span class="aptype" style="background:' + t.bg + ';color:' + t.c + '">' + ic(t.ic, 15) + esc(x.Type) + '</span></div>' +
+    '<div class="apd">' + ic("cal", 18) + '<span>' + rangeTxt(x) + (leave && x.Days ? ' (' + esc(x.Days) + ' يوم)' : '') + '</span></div>' +
+    (sp.note ? '<div class="apr">' + esc(sp.note) + '</div>' : '') +
+    (chips ? '<div>' + chips + '</div>' : '') +
+    '<div class="apa"><button class="apb ok" onclick="decide(\'' + esc(x.RequestID) + '\',\'موافق\',this)">' + ic("check", 18) + 'موافقة</button>' +
+    '<button class="apb no" onclick="decide(\'' + esc(x.RequestID) + '\',\'مرفوض\',this)">' + ic("x", 18) + 'رفض</button></div></div>';
+}
 async function loadPending(){
   show("جاري التحميل...", "info");
   try {
     const r = await call("pendingRequests", me());
     if (!r.ok) throw new Error(r.error);
     hideMsg();
-    $("mgrList").innerHTML = r.list.length ? r.list.map(x =>
-      '<div class="req"><b>' + esc(x.EmpName) + '</b> <span class="sub">(' + esc(x.EmployeeID) + ')</span> - ' + esc(x.Type) +
-      '<div class="sub">' + dates(x) + (x.Days ? ' - ' + esc(x.Days) + ' يوم' : '') + '</div>' +
-      (x.ManagerBy ? '<div class="sub">وافق المدير: ' + esc(x.ManagerBy) + '</div>' : '') +
-      (x.Reason ? '<div class="sub">' + esc(x.Reason) + '</div>' : '') +
-      '<div class="row"><button class="in" onclick="decide(\'' + x.RequestID + '\',\'موافق\')">موافقة</button>' +
-      '<button class="out" onclick="decide(\'' + x.RequestID + '\',\'مرفوض\')">رفض</button></div></div>'
-    ).join("") : '<div class="item">مفيش طلبات معلّقة</div>';
+    apCount(r.list.length);
+    $("mgrList").innerHTML = r.list.length ? r.list.map(apCard).join("") : '<div class="empty">مفيش طلبات معلّقة</div>';
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
 }
 $("mgrRefresh").onclick = loadPending;
-async function decide(requestId, decision){
+async function decide(requestId, decision, btn){
+  const card = $("ap_" + requestId);
+  const btns = card ? card.querySelectorAll(".apb") : [];
+  btns.forEach(b => b.disabled = true);
   try {
     const r = await call("decideRequest", { ...me(), requestId, decision });
     if (!r.ok) throw new Error(r.error);
-    show("تم: " + decision, "ok"); loadPending();
-  } catch (e) { show(e.message || "حصل خطأ", "err"); }
+    if (card) card.remove();
+    const left = $("mgrList").querySelectorAll(".apc").length;
+    apCount(left);
+    if (!left) $("mgrList").innerHTML = '<div class="empty">مفيش طلبات معلّقة</div>';
+    show(decision === "موافق" ? "تمت الموافقة ✅" : "تم الرفض", "ok");
+  } catch (e) { btns.forEach(b => b.disabled = false); show(e.message || "حصل خطأ", "err"); }
 }
 
 // ===== المأموريات (تسجيل فقط) =====
