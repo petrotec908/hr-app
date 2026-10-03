@@ -254,6 +254,42 @@
     .oq{display:flex;align-items:center;gap:10px;border-radius:14px;padding:14px;text-align:right;color:var(--ink);font-weight:700;font-size:14px}
     .oview{max-width:900px}
   }
+
+  /* ===== ضبط شاشة صاحب الشركة على الموبايل فقط (أقل من 900px) ===== */
+  @media (max-width:899px){
+    #ownerView{overflow-x:hidden;width:100%}
+    .omain{width:100%;padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+    .oin{padding:0 12px}
+    .ohd{padding:calc(env(safe-area-inset-top,0px) + 14px) 0 22px;border-radius:0 0 22px 22px}
+    .ohd .oin{gap:12px}
+    .ohr{flex-wrap:wrap;gap:8px;row-gap:12px}
+    .ohr .oav{width:42px;height:42px;font-size:17px}
+    .ohr .tx{flex:1 1 0;min-width:0}
+    .ohr b{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ohr small{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .oib{width:38px;height:38px;border-radius:11px}
+    .ohr .odate{order:9;flex:1 1 100%;width:100%!important;min-width:0;height:42px;text-align:right;display:block}
+    .oweek{margin-top:10px;font-size:13px}
+    .ocard{padding:12px;margin-top:12px;border-radius:16px}
+    .ocard h3{font-size:16px}
+    .otiles{grid-template-columns:1fr 1fr;gap:8px}
+    .otile{padding:10px;min-width:0}
+    .otile .otl{font-size:13px;gap:6px;flex-wrap:wrap}
+    .otile .otn{font-size:26px;margin-top:4px}
+    .ring{width:64px;height:64px}.ring span{width:48px;height:48px;font-size:14px}
+    .otabs{margin:0 -12px;padding:12px 12px 4px}
+    .orow{padding:10px;gap:10px;min-width:0}
+    .orow .oav{width:40px;height:40px;font-size:16px}
+    .orow b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .orow small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .oend small{max-width:96px}
+    .osum{padding:12px 14px}.osum .n{font-size:26px}
+    .oacard{padding:12px}
+    .obot{padding:8px 4px calc(10px + env(safe-area-inset-bottom,0px))}
+    .obn{padding:4px 2px;font-size:11px;min-width:0}
+    .obn .obadge{top:-2px;left:auto;right:calc(50% - 22px)}
+    .sheetBox{max-width:none;max-height:80vh;padding:14px 14px calc(18px + env(safe-area-inset-bottom,0px))}
+  }
 </style>
 </head>
 <body>
@@ -354,13 +390,19 @@
     <section id="pgMission" class="hidden">
       <div class="pgbar">المأمورية<button class="back" onclick="back()" aria-label="رجوع" data-ic="back" data-s="24"></button></div>
       <div class="pad">
+        <button class="primary newReq" style="margin-top:0" onclick="go('missionNew')"><span data-ic="plus" data-s="20"></span>مأمورية جديدة</button>
+        <div id="mList"></div>
+      </div>
+    </section>
+
+    <section id="pgMissionNew" class="hidden">
+      <div class="pgbar">مأمورية جديدة<button class="back" onclick="back()" aria-label="رجوع" data-ic="back" data-s="24"></button></div>
+      <div class="pad">
         <div class="sub">سجّل المأمورية قبل ما تخرج، واليوم ده هيتحسبلك حضور.</div>
         <label>تاريخ المأمورية</label><input id="mDate" type="date">
         <label>اسم اللي كلّفك بالمأمورية</label><input id="mBy" placeholder="مثال: م. أحمد">
         <label>الجهة أو الغرض (اختياري)</label><textarea id="mDetails" rows="3"></textarea>
         <button class="primary" id="mSend" style="display:flex;align-items:center;justify-content:center;gap:8px"><span data-ic="send" data-s="20"></span>تسجيل المأمورية</button>
-        <h3 class="sec">مأمورياتي</h3>
-        <div id="mList"></div>
       </div>
     </section>
 
@@ -685,7 +727,7 @@ function balUI(){
 }
 
 // ===== التنقل =====
-const PG = { inbox: "pgInbox", chat: "pgChat", home: "pgHome", req: "pgReq", types: "pgTypes", form: "pgForm", detail: "pgDetail", att: "pgAtt", mission: "pgMission", approve: "pgApprove", profile: "pgProfile" };
+const PG = { inbox: "pgInbox", chat: "pgChat", home: "pgHome", req: "pgReq", types: "pgTypes", form: "pgForm", detail: "pgDetail", att: "pgAtt", mission: "pgMission", missionNew: "pgMissionNew", approve: "pgApprove", profile: "pgProfile" };
 let cur = null, hist = [];
 function go(p, how){
   if (how === "root") hist = [];
@@ -697,6 +739,7 @@ function go(p, how){
   if (p === "req") { loadMine(); balUI(); }
   if (p === "types") renderTypes();
   if (p === "mission") loadMissions();
+  if (p === "missionNew") { $("mDate").value = new Date().toLocaleDateString("en-CA"); $("mBy").value = ""; $("mDetails").value = ""; }
   if (p === "att") { if (how !== "back") attMonth = curMonth(); loadAtt(); }
   if (p === "approve") loadPending();
   if (p === "inbox") loadInbox();
@@ -712,7 +755,7 @@ function drawNav(p){
   if (session.role === "Manager" || session.role === "HR") items.push(["approve", "الطلبات", "shield"]);
   if (session.role === "HR") items.push(["inbox", "الرسايل", "msg"]);
   items.push(["profile", "الملف الشخصي", "user"]);
-  const act = p === "chat" ? (session.role === "HR" ? "inbox" : "profile") : p === "att" ? "profile" : p === "mission" ? "home" : (p === "types" || p === "form" || p === "detail") ? "req" : p;
+  const act = p === "chat" ? (session.role === "HR" ? "inbox" : "profile") : p === "att" ? "profile" : (p === "mission" || p === "missionNew") ? "home" : (p === "types" || p === "form" || p === "detail") ? "req" : p;
   $("nav").innerHTML = items.map(i => '<button class="ni' + (i[0] === act ? ' on' : '') + '" onclick="go(\'' + i[0] + '\',\'root\')">' + ic(i[2], 24) + ((i[0] === "inbox" || (i[0] === "profile" && session.role !== "HR")) && msgUnread ? '<i class="ndot"></i>' : '') + '<span>' + i[1] + '</span></button>').join("");
 }
 function fillProfile(){
@@ -1012,8 +1055,7 @@ $("mSend").onclick = async () => {
   try {
     const r = await call("mission", { ...me(), date, assignedBy, details });
     if (!r.ok) throw new Error(r.error);
-    show("تم تسجيل المأمورية ✅ واليوم اتحسبلك حضور", "ok");
-    $("mBy").value = ""; $("mDetails").value = ""; loadMissions();
+    back(); show("تم تسجيل المأمورية ✅ واليوم اتحسبلك حضور", "ok");
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
   finally { $("mSend").disabled = false; }
 };
@@ -1023,8 +1065,9 @@ async function loadMissions(){
     if (!r.ok) throw new Error(r.error);
     $("mList").innerHTML = r.list.length ? r.list.map(x =>
       '<div class="li"><span class="ico o">' + ic("brief", 22) + '</span><span class="tx"><b>' + dsp(x.Date) + '</b>' +
-      '<small>كلّفه: ' + esc(x.AssignedBy) + '</small>' + (x.Details ? '<small>' + esc(x.Details) + '</small>' : '') + '</span></div>'
-    ).join("") : '<div class="empty">مفيش مأموريات لسه</div>';
+      '<small>كلّفه: ' + esc(x.AssignedBy) + '</small>' + (x.Details ? '<small>' + esc(x.Details) + '</small>' : '') + '</span>' +
+      '<span class="end"><span class="badge yes">مسجّلة</span></span></div>'
+    ).join("") : '<div class="empty">لسه مفيش مأموريات. اضغط «مأمورية جديدة» لتسجيل أول مأمورية</div>';
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
 }
 
