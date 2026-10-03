@@ -255,41 +255,28 @@
     .oview{max-width:900px}
   }
 
-  /* ===== ضبط شاشة صاحب الشركة على الموبايل فقط (أقل من 900px) ===== */
+  /* ===== شاشة صاحب الشركة على الموبايل (شبه شاشات المدير) ===== */
+  #oPhone{display:none}
+  .psum{display:flex;align-items:center;gap:14px;border-radius:18px;padding:16px}
+  .psum .psic{width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;flex:none}
+  .psum .tx{flex:1}.psum small{display:block;font-weight:700;font-size:14px}.psum b{font-size:30px}.psum b span{font-size:15px;font-weight:700}
+  .psheet{background:var(--bg);border-radius:26px 26px 0 0;margin-top:-44px;padding:16px 14px 110px;position:relative}
+  .psheet h3{margin:0 0 12px;font-size:19px}
+  .pdate{position:relative;display:inline-flex;align-items:center;gap:8px}
+  .pdate input{position:absolute;inset:0;width:100%;height:100%;opacity:0;padding:0;border:0}
+  .pdet{display:flex;align-items:center;gap:14px;background:#e8f1ff;border-radius:18px;padding:16px}
+  .pdet .tx{flex:1}.pdet b{display:block;font-size:19px}
+  .pbox{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .pbox div{background:#fff;border-radius:16px;padding:12px;box-shadow:0 2px 10px rgba(15,30,61,.05)}
+  .pbox small{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px}.pbox b{display:block;font-size:19px;margin-top:6px}
+  .pcard{background:#fff;border-radius:16px;padding:6px 14px;margin-top:12px;box-shadow:0 2px 10px rgba(15,30,61,.05)}
+  .pcard>b{display:block;padding:10px 0 2px;font-size:15px}
   @media (max-width:899px){
-    #ownerView{overflow-x:hidden;width:100%}
-    .omain{width:100%;padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}
-    .oin{padding:0 12px}
-    .ohd{padding:calc(env(safe-area-inset-top,0px) + 14px) 0 22px;border-radius:0 0 22px 22px}
-    .ohd .oin{gap:12px}
-    .ohr{flex-wrap:wrap;gap:8px;row-gap:12px}
-    .ohr .oav{width:42px;height:42px;font-size:17px}
-    .ohr .tx{flex:1 1 0;min-width:0}
-    .ohr b{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .ohr small{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .oib{width:38px;height:38px;border-radius:11px}
-    .ohr .odate{order:9;flex:1 1 100%;width:100%!important;min-width:0;height:42px;text-align:right;display:block}
-    .oweek{margin-top:10px;font-size:13px}
-    .ocard{padding:12px;margin-top:12px;border-radius:16px}
-    .ocard h3{font-size:16px}
-    .otiles{grid-template-columns:1fr 1fr;gap:8px}
-    .otile{padding:10px;min-width:0}
-    .otile .otl{font-size:13px;gap:6px;flex-wrap:wrap}
-    .otile .otn{font-size:26px;margin-top:4px}
-    .ring{width:64px;height:64px}.ring span{width:48px;height:48px;font-size:14px}
-    .otabs{margin:0 -12px;padding:12px 12px 4px}
-    .orow{padding:10px;gap:10px;min-width:0}
-    .orow .oav{width:40px;height:40px;font-size:16px}
-    .orow b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .orow small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .oend small{max-width:96px}
-    .osum{padding:12px 14px}.osum .n{font-size:26px}
-    .oacard{padding:12px}
-    .obot{padding:8px 4px calc(10px + env(safe-area-inset-bottom,0px))}
-    .obn{padding:4px 2px;font-size:11px;min-width:0}
-    .obn .obadge{top:-2px;left:auto;right:calc(50% - 22px)}
-    .sheetBox{max-width:none;max-height:80vh;padding:14px 14px calc(18px + env(safe-area-inset-bottom,0px))}
+    #ownerView{margin:0;display:block;min-height:100vh;overflow-x:hidden}
+    .osb,.omain,.obot{display:none!important}
+    #oPhone{display:block;max-width:560px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative}
   }
+  @media (min-width:900px){#pNav{display:none!important}}
 </style>
 </head>
 <body>
@@ -377,7 +364,7 @@
           <input id="rTime" type="time">
         </div>
         <label>ملاحظات (اختياري)</label>
-        <textarea id="rReason" rows="3" placeholder="اكتب أي ملاحظات إن وجدت"></textarea>
+        <textarea id="rReason" rows="3" maxlength="300" placeholder="اكتب أي ملاحظات إن وجدت"></textarea>
         <button class="primary" id="rSend" style="display:flex;align-items:center;justify-content:center;gap:8px"><span data-ic="send" data-s="20"></span>إرسال الطلب</button>
       </div>
     </section>
@@ -400,8 +387,8 @@
       <div class="pad">
         <div class="sub">سجّل المأمورية قبل ما تخرج، واليوم ده هيتحسبلك حضور.</div>
         <label>تاريخ المأمورية</label><input id="mDate" type="date">
-        <label>اسم اللي كلّفك بالمأمورية</label><input id="mBy" placeholder="مثال: م. أحمد">
-        <label>الجهة أو الغرض (اختياري)</label><textarea id="mDetails" rows="3"></textarea>
+        <label>اسم اللي كلّفك بالمأمورية</label><input id="mBy" maxlength="100" placeholder="مثال: م. أحمد">
+        <label>الجهة أو الغرض (اختياري)</label><textarea id="mDetails" rows="3" maxlength="300"></textarea>
         <button class="primary" id="mSend" style="display:flex;align-items:center;justify-content:center;gap:8px"><span data-ic="send" data-s="20"></span>تسجيل المأمورية</button>
       </div>
     </section>
@@ -466,7 +453,7 @@
       <div class="pgbar"><span id="chatTitle">مساعدة</span><button class="back" onclick="back()" aria-label="رجوع" data-ic="back" data-s="24"></button></div>
       <div class="pad" style="padding-bottom:90px"><div class="chat" id="chatList"></div></div>
       <div class="chatbar">
-        <textarea id="chatIn" rows="1" placeholder="اكتب رسالتك..."></textarea>
+        <textarea id="chatIn" rows="1" maxlength="1000" placeholder="اكتب رسالتك..."></textarea>
         <button id="chatSend" aria-label="إرسال" data-ic="send" data-s="22"></button>
       </div>
     </section>
@@ -562,6 +549,8 @@
       <div class="oin oview" id="oBody"></div>
     </main>
     <nav class="obot" id="oBotNav"></nav>
+    <div id="oPhone"></div>
+    <nav class="nav hidden" id="pNav"></nav>
   </div>
 
   <div id="oSheet" class="sheet hidden"><div class="sheetBox" id="oSheetBox"></div></div>
@@ -601,6 +590,7 @@ const I = {
   login:'<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5M15 12H3"/>',
   check:'<path d="M5 12l5 5 9-10"/>',
   x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',
   search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
   warn:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>',
   refresh:'<path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/>',
@@ -1285,6 +1275,8 @@ function oGo(v, f){
 }
 function renderOwner(){
   if (!dash) return;
+  if (isPhone()) { renderPhone(); return; }
+  $("pNav").classList.add("hidden");
   $("oSub").textContent = "صاحب الشركة - " + dash.total + " موظف";
   $("oWeekend").classList.toggle("hidden", !dash.isWeekend);
   const n = oFollow();
@@ -1403,6 +1395,133 @@ $("oDate").onchange = loadDash;
 $("oRefresh").onclick = loadDash;
 $("oBell").onclick = () => oGo("alerts");
 $("oLogout").onclick = $("oLogoutM").onclick = () => { store.del("session"); location.reload(); };
+
+
+// ===== شاشة صاحب الشركة على الموبايل (شبه شاشات المدير) =====
+const isPhone = () => window.matchMedia("(max-width:899px)").matches;
+let pv = { v: "home", arg: "", root: true, tab: "all" }, pHist = [], pQs = "";
+function pGo(v, arg, root){
+  if (root) pHist = []; else pHist.push(pv);
+  pv = { v, arg: arg || "", root: !!root, tab: "all" }; pQs = "";
+  window.scrollTo(0, 0); renderOwner();
+}
+function pBack(){ pv = pHist.pop() || { v: "home", arg: "", root: true, tab: "all" }; pQs = ""; window.scrollTo(0, 0); renderOwner(); }
+function pSet(k, val){ pv[k] = val; pQs = ""; renderOwner(); }
+const pBar = (title, back) => '<div class="pgbar">' + title + (back ? '<button class="back" onclick="pBack()" aria-label="رجوع">' + ic("back", 24) + '</button>' : '') + '</div>';
+const pSum = (bg, col, icn, label, n, unit) => '<div class="psum" style="background:' + bg + '"><span class="psic" style="color:' + col + '">' + ic(icn, 28) + '</span><div class="tx"><small style="color:' + col + '">' + label + '</small><b style="color:' + col + '">' + n + ' <span>' + unit + '</span></b></div></div>';
+
+function renderPhone(){
+  $("oPhone").innerHTML = { home: pHome, emps: pEmps, reqs: pReqs, alerts: pAlerts, more: pMore, emp: pEmp }[pv.v]();
+  const n = oFollow();
+  const items = [["home", "الرئيسية", "home"], ["emps", "الموظفون", "user"], ["alerts", "الإشعارات", "bell"], ["more", "المزيد", "menu"]];
+  $("pNav").innerHTML = items.map(i => '<button class="ni' + (pv.root && i[0] === pv.v ? ' on' : '') + '" onclick="pGo(\'' + i[0] + '\',\'\',true)">' + ic(i[2], 24) +
+    (i[0] === "alerts" && n ? '<i class="obadge" style="top:-2px;left:auto;right:calc(50% - 22px)">' + n + '</i>' : '') + '<span>' + i[1] + '</span></button>').join("");
+  $("pNav").classList.toggle("hidden", !pv.root);
+  if (pv.v === "emps") pEList();
+}
+
+function pHome(){
+  const t = dash.total, pres = oPeople("present").length, abs = oPeople("absent").length;
+  const ms = oPeople("mission").length, lv = oPeople("leave").length, pct = t ? Math.round(pres * 100 / t) : 0, n = oFollow();
+  const dtxt = new Date(dash.day + "T12:00:00").toLocaleDateString("ar-EG-u-nu-latn", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+  const tile = (k, label, icn, bg, col, num, unit) => '<button class="otile" style="background:' + bg + '" onclick="' + k + '"><div class="otl" style="color:' + col + '">' + ic(icn, 20) + label + '</div>' +
+    '<div class="otn" style="color:' + col + '">' + num + (unit ? ' <span style="font-size:14px;font-weight:700">' + unit + '</span>' : '') + '</div></button>';
+  return '<div class="hdr"><div class="top"><div class="avatar">' + esc(String(session.name).charAt(0)) + '</div>' +
+    '<button class="bell" onclick="pGo(\'alerts\',\'\',true)">' + ic("bell", 26) + (n ? '<i class="obadge" style="top:0;left:auto;right:0">' + n + '</i>' : '') + '</button>' +
+    '<button class="bell" style="margin-inline-start:auto" onclick="pGo(\'more\',\'\',true)" aria-label="المزيد">' + ic("menu", 26) + '</button></div>' +
+    '<img src="header.jpg" class="banner" alt="" onerror="this.style.display=\'none\'">' +
+    '<div class="greet">أهلاً</div><div class="gname">' + esc(session.name) + '</div><div class="gjob">صاحب الشركة</div>' +
+    '<div class="gjob">' + ic("user", 16) + ' موظفو الشركة: ' + t + '</div>' +
+    '<div class="gdate"><span class="pdate">' + ic("cal", 18) + '<span>' + esc(dtxt) + '</span><input type="date" value="' + esc(dash.day) + '" onchange="$(\'oDate\').value=this.value;loadDash()"></span>' +
+    '<button class="bell" style="margin-inline-start:auto" onclick="loadDash()" aria-label="تحديث">' + ic("refresh", 20) + '</button></div></div>' +
+    '<div class="psheet">' + (dash.isWeekend ? '<div class="oweek" style="margin:0 0 12px">النهارده إجازة أسبوعية، مفيش غياب بيتحسب.</div>' : '') +
+    '<h3>ملخص اليوم</h3><div class="otiles">' +
+    tile("pGo('emps','present')", "حاضر", "user", "#dff5e8", "#14804a", pres) +
+    tile("pGo('emps','absent')", "غائب", "user", "#fde4e4", "#c43434", abs) +
+    tile("pGo('emps','mission')", "مأمورية", "brief", "#fff3d6", "#b36b00", ms) +
+    tile("pGo('emps','leave')", "إجازة", "cal", "#e3ecff", "#3b5bdb", lv) +
+    tile("pGo('alerts')", "يحتاج متابعة", "warn", "#efe7ff", "#6d3fd1", n, "حالات") +
+    tile("pGo('reqs')", "طلبات الموظفين", "file", "#e3edff", "#2f6fe0", oPend(), "طلبات") + '</div>' +
+    '<button class="ocard" style="width:100%;text-align:right;color:var(--ink)" onclick="pGo(\'emps\',\'present\')"><div style="display:flex;align-items:center;gap:14px"><div style="flex:1">' +
+    '<div style="display:flex;align-items:center;gap:8px;font-weight:700;color:var(--navy)">' + ic("user", 22) + 'سجل حضور اليوم</div>' +
+    '<div style="margin-top:6px;font-size:14px;color:var(--muted)">' + pres + ' / ' + t + ' موظف حاضر</div><div class="obar"><i style="width:' + pct + '%"></i></div></div>' +
+    '<div class="ring" style="--p:' + pct + '"><span>' + pct + '%</span></div></div></button></div>';
+}
+
+const pMeta = {
+  all: ["إجمالي الموظفين", "#e3ecff", "#3b5bdb", "user", "الموظفون"],
+  present: ["الحاضرون اليوم", "#dff5e8", "#14804a", "user", "الموظفون الحاضرون"],
+  absent: ["الغائبون اليوم", "#fde4e4", "#c43434", "user", "الموظفون الغائبون"],
+  mission: ["في مأمورية اليوم", "#fff3d6", "#b36b00", "brief", "المأموريات"],
+  leave: ["في إجازة اليوم", "#efe7ff", "#6d3fd1", "cal", "الإجازات"],
+  late: ["المتأخرون اليوم", "#fff1e0", "#b35c00", "clock", "المتأخرون"]
+};
+function pEmps(){
+  const f = pv.arg || "all", m = pMeta[f] || pMeta.all;
+  const tabs = [["all", "الكل"], ["present", "حاضر"], ["absent", "غائب"], ["mission", "مأمورية"], ["leave", "إجازة"]];
+  return pBar(m[4], !pv.root) + '<div class="pad">' + pSum(m[1], m[2], m[3], m[0], oPeople(f).length, "موظف") +
+    (pv.root ? '<div class="otabs">' + tabs.map(x => '<button class="otab' + (x[0] === f ? ' on' : '') + '" onclick="pSet(\'arg\',\'' + x[0] + '\')">' + x[1] + '</button>').join("") + '</div>' : '') +
+    '<div class="osrch">' + ic("search", 20) + '<input id="pQ" placeholder="ابحث عن موظف..." value="' + esc(pQs) + '" oninput="pQs=this.value;pEList()"></div><div id="pEList"></div></div>';
+}
+function pEList(){
+  const f = pv.arg || "all", q = pQs.trim().toLowerCase();
+  const list = oPeople(f).filter(p => !q || (p.name + " " + p.id + " " + p.job).toLowerCase().indexOf(q) !== -1);
+  const sub = p => p.status === "absent" ? "بدون تسجيل" : p.status === "leave" ? "إجازة معتمدة" : p.status === "mission" ? "مأمورية" : p.inTime || "";
+  $("pEList").innerHTML = list.length ? list.map(p =>
+    '<button class="orow" onclick="pGo(\'emp\',\'' + esc(p.id) + '\')"><span class="oav">' + esc(String(p.name).charAt(0)) + '</span>' +
+    '<span class="tx"><b>' + esc(p.name) + '</b><small>' + esc(p.job || p.id) + '</small></span>' +
+    '<span class="oend">' + oBadge(p.status) + '<small>' + sub(p) + '</small></span>' + ic("chev", 18) + '</button>').join("") : '<div class="empty">مفيش موظفين</div>';
+}
+
+function pReqs(){
+  const all = dash.requests || [], msn = oPeople("mission");
+  const leaves = all.filter(x => typeOf(x.Type).g === "leave"), perms = all.filter(x => typeOf(x.Type).g !== "leave");
+  const tabs = [["all", "الكل"], ["leave", "إجازات (" + leaves.length + ")"], ["permit", "أذونات (" + perms.length + ")"], ["mission", "مأموريات (" + msn.length + ")"]];
+  const row = x => '<div class="orow">' + icoBox(typeOf(x.Type)) + '<span class="tx"><b>' + esc(x.EmpName) + '</b><small>' + esc(x.Type) + '</small><small>' + rangeTxt(x) + (x.Days ? ' (' + esc(x.Days) + ' يوم)' : '') + '</small></span><span class="oend">' + sbadge(x.Status) + '</span></div>';
+  const mrow = p => '<div class="orow"><span class="ico" style="background:#fff3d6;color:#b36b00">' + ic("brief", 22) + '</span><span class="tx"><b>' + esc(p.name) + '</b><small>مأمورية</small><small>كلّفه: ' + esc(p.by || "-") + '</small></span><span class="oend">' + oBadge("mission") + '</span></div>';
+  const list = pv.tab === "leave" ? leaves.map(row) : pv.tab === "permit" ? perms.map(row) : pv.tab === "mission" ? msn.map(mrow) : all.map(row);
+  return pBar("طلبات الموظفين", !pv.root) + '<div class="pad">' + pSum("#e3edff", "#2f6fe0", "file", "طلبات بانتظار القرار", oPend(), "طلبات") +
+    '<div class="otabs">' + tabs.map(x => '<button class="otab' + (x[0] === pv.tab ? ' on' : '') + '" onclick="pSet(\'tab\',\'' + x[0] + '\')">' + x[1] + '</button>').join("") + '</div>' +
+    (list.length ? list.join("") : '<div class="empty">مفيش طلبات</div>') + '</div>';
+}
+
+function pAlerts(){
+  const late = oPeople("late").length, n = oFollow();
+  const card = (icn, c, bg, title, sub, num, act) => num ? '<button class="oacard" ' + (act ? 'onclick="' + act + '"' : '') + '><span class="ico" style="background:' + bg + ';color:' + c + '">' + ic(icn, 22) + '</span><span class="tx"><b>' + num + ' ' + title + '</b><small>' + sub + '</small></span>' + (act ? ic("chev", 18) : "") + '</button>' : "";
+  const cards = card("file", "#2f6fe0", "#e3edff", "طلبات بانتظار القرار", "إجازات وأذونات عند المدير المباشر أو HR", oPend(), "pGo('reqs')") +
+    card("clock", "#b35c00", "#fff1e0", "متأخر عن الحضور", "سجّلوا حضور بعد وقت السماح بدون إذن", late, "pGo('emps','late')") +
+    card("warn", "#c43434", "#fdeaea", "محاولة تسجيل مرفوضة", "تسجيل حضور أو انصراف خارج نطاق الشركة", dash.rejected, "");
+  return pBar("يحتاج متابعة", !pv.root) + '<div class="pad">' + pSum("#fff3d6", "#b36b00", "warn", "الحالات التي تحتاج متابعة", n, "حالات") +
+    (cards || '<div class="empty">مفيش حاجة محتاجة متابعة دلوقتي</div>') + '<div class="otip">اضغط على أي حالة لعرض تفاصيلها.</div></div>';
+}
+
+function pMore(){
+  const r = (icn, cls, title, sub, act) => '<button class="rl" onclick="' + act + '"><span class="ico ' + cls + '">' + ic(icn, 22) + '</span><span class="tx"><b>' + title + '</b><small>' + sub + '</small></span>' + ic("chev", 20) + '</button>';
+  return pBar("المزيد", false) + '<div class="pad" style="display:grid;gap:10px">' +
+    r("file", "b", "طلبات الموظفين", "الإجازات والأذونات والمأموريات", "pGo('reqs')") +
+    r("user", "b", "الموظفون الحاضرون", "من سجّل حضوره اليوم", "pGo('emps','present')") +
+    r("user", "o", "الموظفون الغائبون", "من لم يسجّل اليوم", "pGo('emps','absent')") +
+    r("brief", "o", "المأموريات", "الموظفون في مأمورية اليوم", "pGo('emps','mission')") +
+    r("refresh", "b", "تحديث البيانات", "تحميل آخر بيانات اليوم", "loadDash()") +
+    '<button class="rl" id="pOut" onclick="store.del(\'session\');location.reload()"><span class="ico" style="background:#fdeaea;color:#c43434">' + ic("logout", 22) + '</span><span class="tx"><b style="color:#c43434">تسجيل الخروج</b></span></button></div>';
+}
+
+function pEmp(){
+  const p = (dash.people || []).find(x => String(x.id) === String(pv.arg));
+  if (!p) return pBar("تفاصيل الموظف", true) + '<div class="pad"><div class="empty">الموظف مش موجود</div></div>';
+  const row = (icn, l, v) => '<div class="drow"><span>' + ic(icn, 20) + l + '</span><b>' + v + '</b></div>';
+  let act = "";
+  if (p.inTime) act += row("check", "تم تسجيل الحضور", esc(p.inTime));
+  if (p.outTime) act += row("clock", "تم تسجيل الانصراف", esc(p.outTime));
+  else if (p.inTime) act += row("clock", "الانصراف", "لم يتم بعد");
+  if (!act) act = row("note", "النشاط", "لا يوجد تسجيل");
+  const note = p.status === "mission" ? "كلّفه: " + esc(p.by || "-") + (p.details ? " - " + esc(p.details) : "") : "لا توجد ملاحظات عليه";
+  return pBar("تفاصيل الموظف", true) + '<div class="pad"><div class="pdet"><div class="tx"><b>' + esc(p.name) + '</b><span class="sub">' + esc(p.job || "") + '</span><div style="margin-top:8px">' + oBadge(p.status) + '</div></div><span class="oav lg">' + esc(String(p.name).charAt(0)) + '</span></div>' +
+    '<div class="pbox"><div><small>' + ic("clock", 16) + 'وقت الدخول</small><b>' + esc(p.inTime || "-") + '</b></div><div><small>' + ic("cal", 16) + 'تاريخ اليوم</small><b>' + esc(String(dash.day).replace(/-/g, "/")) + '</b></div></div>' +
+    '<div class="pcard">' + row("hash", "كود الموظف", esc(p.id)) + row("user", "رقم الهاتف", p.phone ? '<a href="tel:' + esc(p.phone) + '" style="color:var(--navy)">' + esc(p.phone) + '</a>' : "-") + '</div>' +
+    '<div class="pcard"><b>آخر الأنشطة</b>' + act + '</div><div class="otip">ملاحظة: ' + note + '</div></div>';
+}
+window.matchMedia("(max-width:899px)").addEventListener("change", () => { if (dash) renderOwner(); });
 
 // ===== تثبيت التطبيق =====
 let deferredPrompt = null;
