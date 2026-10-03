@@ -159,6 +159,10 @@
   .cnt{background:#ee4b4b;color:#fff;border-radius:99px;min-width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;padding:0 6px}
   .ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;display:block}
   .inbox{display:grid;gap:10px}
+  .bub .meta{display:flex;align-items:center;gap:10px;font-size:11px;margin-top:2px}
+  .bub .meta span:first-child{opacity:.7}
+  .rcp{display:inline-flex;align-items:center;gap:3px;color:rgba(255,255,255,.6)}
+  .rcp.seen{color:#4ade80;font-weight:700}
 </style>
 </head>
 <body>
@@ -377,6 +381,7 @@
       <div class="item" style="margin-top:0">لو التسجيل مش بيشتغل، اتأكد إن الـ GPS شغال وإنك داخل نطاق الشركة.</div>
       <div class="item">لو ظهرت رسالة إن الحساب مربوط بموبايل تاني، كلّم المدير.</div>
       <div class="item">لأي استفسار عن طلباتك، كلّم مديرك المباشر أو مدير HR.</div>
+      <button class="rl" id="helpChatBtn" style="margin-top:12px"><span class="ico b" data-ic="msg"></span><span class="tx"><b>رسائل مع مدير HR</b><small>اكتب لمدير HR وتابع الردود هنا</small></span><span class="cnt hidden" id="helpCnt"></span><span data-ic="chev" data-s="20"></span></button>
     </div>
   </div>
 
@@ -618,7 +623,8 @@ function fillProfile(){
 }
 $("infoBtn").onclick = () => { fillProfile(); $("infoPanel").classList.remove("hidden"); };
 $("infoClose").onclick = () => $("infoPanel").classList.add("hidden");
-$("helpBtn").onclick = () => { if (session.role === "HR") $("helpPanel").classList.remove("hidden"); else { chatEmp = null; go("chat"); } };
+$("helpBtn").onclick = () => { $("helpChatBtn").classList.toggle("hidden", session.role === "HR"); $("helpPanel").classList.remove("hidden"); };
+$("helpChatBtn").onclick = () => { $("helpPanel").classList.add("hidden"); chatEmp = null; go("chat"); };
 $("helpClose").onclick = () => $("helpPanel").classList.add("hidden");
 $("setBtn").onclick = () => $("setPanel").classList.remove("hidden");
 $("setClose").onclick = () => $("setPanel").classList.add("hidden");
@@ -952,7 +958,9 @@ async function checkMsgs(){
     const r = await call("unreadCount", me());
     if (!r.ok) return;
     msgUnread = r.count;
-    $("helpDot").classList.toggle("hidden", !(msgUnread && session.role !== "HR"));
+    const emp = session.role !== "HR";
+    $("helpDot").classList.toggle("hidden", !(msgUnread && emp));
+    $("helpCnt").textContent = msgUnread; $("helpCnt").classList.toggle("hidden", !(msgUnread && emp));
     if (cur) drawNav(cur);
   } catch (e) {}
 }
@@ -965,7 +973,10 @@ async function loadChat(){
     $("chatTitle").textContent = hr ? r.name : "مساعدة - مدير HR";
     $("chatList").innerHTML = r.list.length ? r.list.map(m => {
       const mine = hr ? m.from === "HR" : m.from === "Employee";
-      return '<div class="bub ' + (mine ? 'me' : 'th') + '">' + esc(m.text) + '<small>' + fmtDT(m.at) + '</small></div>';
+      const rc = !mine ? "" : m.read
+        ? '<span class="rcp seen">' + ic("check", 13) + 'تمت المشاهدة</span>'
+        : '<span class="rcp">' + ic("check", 13) + 'تم الإرسال</span>';
+      return '<div class="bub ' + (mine ? 'me' : 'th') + '">' + esc(m.text) + '<div class="meta"><span>' + fmtDT(m.at) + '</span>' + rc + '</div></div>';
     }).join("") : '<div class="empty">' + (hr ? "مفيش رسايل" : "ابعت رسالتك لمدير HR وهيرد عليك هنا.") + '</div>';
     window.scrollTo(0, document.body.scrollHeight);
     checkMsgs();
