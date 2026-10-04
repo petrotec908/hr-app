@@ -280,47 +280,19 @@
     #oPhone{display:block;max-width:560px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative}
   }
   @media (min-width:900px){#pNav{display:none!important}}
-  /* ===== التقارير ===== */
-  .rctl{background:#fff;border-radius:18px;padding:14px;box-shadow:0 2px 10px rgba(15,30,61,.06)}
-  .rctl label:first-child{margin-top:0}
-  .rchip{display:flex;align-items:center;gap:10px;background:#f3f6fb;border-radius:12px;padding:10px 12px}
-  .rchip .tx{flex:1;min-width:0}.rchip b{display:block;font-size:15px}.rchip small{color:var(--muted);font-size:12px}
-  .rchip button{background:none;color:var(--navy);font-weight:700;font-size:14px;padding:6px}
-  .ract{display:flex;gap:10px;margin-top:14px}
-  .ract button{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:14px;font-size:15px;font-weight:700}
-  .ract .rb1{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
-  .ract .rb2{background:var(--navy);color:#fff}
-  .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:14px 0}
-  .rst{background:#fff;border-radius:14px;padding:12px;box-shadow:0 2px 10px rgba(15,30,61,.05)}
-  .rst small{display:block;color:var(--muted);font-size:12px}.rst b{display:block;font-size:22px;margin-top:2px}
-  .rtwrap{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(15,30,61,.05);overflow-x:auto}
-  .rtb{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
-  .rtb th{background:var(--navy);color:#fff;font-weight:700;padding:10px 8px;text-align:center;white-space:nowrap}
-  .rtb td{padding:9px 8px;text-align:center;border-top:1px solid var(--line);white-space:nowrap}
-  .rtb td.l{text-align:right}
-  .rtb tfoot td{background:#e6edff;font-weight:700}
-  .rtb .rs{display:inline-block;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:700}
-  .rinfo{background:#fff;border-radius:14px;padding:6px 14px;margin-top:14px;box-shadow:0 2px 10px rgba(15,30,61,.05)}
-  .rtitle{font-weight:700;font-size:15px;margin:16px 4px 8px}
-  #repPrint{display:none}
-  @media print{
-    body.printing-rep{display:block;background:#fff}
-    body.printing-rep #appBox,body.printing-rep #msg{display:none!important}
-    body.printing-rep #repPrint{display:block;direction:rtl;font-family:'Cairo',Tahoma,Arial,sans-serif;color:#000}
-    body.printing-rep *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    #repPrint h1{margin:0 0 4px;font-size:20px;color:#173a8f}
-    #repPrint .prm{color:#475569;font-size:12px;margin-bottom:12px}
-    #repPrint .rtb{min-width:0;font-size:11px;width:100%}
-    #repPrint .rtb th{padding:6px 4px}
-    #repPrint .rtb td{padding:5px 4px}
-    #repPrint thead{display:table-header-group}
-    #repPrint tr{page-break-inside:avoid}
-    #repPrint .rgrid{grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
-    #repPrint .rst{box-shadow:none;border:1px solid #cbd5e1;padding:6px 8px}
-    #repPrint .rst b{font-size:15px}
-    #repPrint .rinfo{box-shadow:none;border:1px solid #cbd5e1}
-    #repPrint .rtwrap{box-shadow:none;border-radius:0;overflow:visible}
-  }
+  .repctl{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));align-items:end;background:#fff;border-radius:16px;padding:14px;box-shadow:0 2px 10px rgba(15,30,61,.05)}
+  .repctl label{margin:0 0 4px}.repctl .primary{margin:0}
+  .rsum{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:12px 0}
+  .rsum div{background:#fff;border-radius:12px;padding:10px 12px;box-shadow:0 2px 10px rgba(15,30,61,.05)}
+  .rsum small{display:block;color:#64748b;font-size:12px}.rsum b{font-size:18px}
+  .rtw{overflow-x:auto;background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(15,30,61,.05)}
+  table.rt{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
+  .rt th{background:#173a8f;color:#fff;padding:9px 8px;font-weight:700;text-align:center;white-space:nowrap}
+  .rt td{padding:8px;text-align:center;border-bottom:1px solid #e3e8f3;white-space:nowrap}
+  .rt tr.rtot td{background:#e6edff;font-weight:700}
+  .rst{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:700}
+  .rpdf{position:fixed;left:-12000px;top:0;background:#fff;color:#0f1e3d;padding:28px;font-family:'Cairo',Tahoma,Arial,sans-serif;direction:rtl}
+  .rpdf .rtw{box-shadow:none;overflow:visible}.rpdf table.rt{min-width:0}.rpdf h2{margin:0 0 4px;color:#173a8f;font-size:22px}
 </style>
 </head>
 <body>
@@ -369,8 +341,8 @@
       </div>
       <div class="rowlinks">
         <button class="rl" onclick="go('req')"><span class="ico b" data-ic="file"></span><span class="tx"><b>طلباتي</b><small>تقديم إجازة أو إذن ومتابعة حالتها</small></span><span data-ic="chev" data-s="20"></span></button>
-        <button class="rl hidden" id="reportRow" onclick="go('reports')"><span class="ico b" data-ic="chart"></span><span class="tx"><b>التقارير</b><small>تقرير الشركة وتقرير الموظف وتحميل PDF</small></span><span data-ic="chev" data-s="20"></span></button>
         <button class="rl" id="missionRow" onclick="go('mission')"><span class="ico o" data-ic="brief"></span><span class="tx"><b>المأمورية</b><small>سجّل مأمورية واليوم يتحسبلك حضور</small></span><span data-ic="chev" data-s="20"></span></button>
+        <button class="rl hidden" id="reportRow" onclick="go('report')"><span class="ico b" data-ic="chart"></span><span class="tx"><b>التقارير</b><small>تقارير الحضور الشهرية وتحميلها PDF</small></span><span data-ic="chev" data-s="20"></span></button>
       </div>
     </section>
 
@@ -499,9 +471,9 @@
       <input type="file" accept="image/*" id="photoIn" class="hidden">
     </section>
 
-    <section id="pgReports" class="hidden">
+    <section id="pgReport" class="hidden">
       <div class="pgbar">التقارير<button class="back" onclick="back()" aria-label="رجوع" data-ic="back" data-s="24"></button></div>
-      <div class="pad"><div id="repHost"></div></div>
+      <div class="pad"><div id="repHostHR"></div></div>
     </section>
 
     <section id="pgInbox" class="hidden">
@@ -622,7 +594,6 @@
 
   <div id="msg"></div>
 </div>
-<div id="repPrint"></div>
 
 <script>
 // رابط الباك إند (Apps Script)
@@ -677,9 +648,9 @@ const I = {
   gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/>',
   msg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
-  shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
   chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
-  dl:'<path d="M12 3v12M7 10l5 5 5-5M4 21h16"/>'
+  download:'<path d="M12 3v12M7 10l5 5 5-5M4 21h16"/>',
+  shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>'
 };
 function ic(n, s){ return '<svg width="' + (s || 22) + '" height="' + (s || 22) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + I[n] + '</svg>'; }
 document.querySelectorAll("[data-ic]").forEach(el => { el.innerHTML = ic(el.dataset.ic, el.dataset.s); });
@@ -785,7 +756,7 @@ function balUI(){
 }
 
 // ===== التنقل =====
-const PG = { inbox: "pgInbox", chat: "pgChat", home: "pgHome", req: "pgReq", types: "pgTypes", form: "pgForm", detail: "pgDetail", att: "pgAtt", mission: "pgMission", missionNew: "pgMissionNew", team: "pgTeam", approve: "pgApprove", profile: "pgProfile", reports: "pgReports" };
+const PG = { report: "pgReport", inbox: "pgInbox", chat: "pgChat", home: "pgHome", req: "pgReq", types: "pgTypes", form: "pgForm", detail: "pgDetail", att: "pgAtt", mission: "pgMission", missionNew: "pgMissionNew", team: "pgTeam", approve: "pgApprove", profile: "pgProfile" };
 let cur = null, hist = [];
 function go(p, how){
   if (how === "root") hist = [];
@@ -801,8 +772,8 @@ function go(p, how){
   if (p === "missionNew") { $("mDate").value = new Date().toLocaleDateString("en-CA"); $("mBy").value = ""; $("mDetails").value = ""; }
   if (p === "att") { if (how !== "back") attMonth = curMonth(); loadAtt(); }
   if (p === "approve") loadPending();
+  if (p === "report") repMount($("repHostHR"));
   if (p === "inbox") loadInbox();
-  if (p === "reports") repRender();
   $("nav").classList.toggle("hidden", p === "chat");
   clearInterval(chatTimer);
   if (p === "chat") { loadChat(); chatTimer = setInterval(() => { if (cur === "chat") loadChat(); }, 15000); }
@@ -815,7 +786,7 @@ function drawNav(p){
   if (session.role === "Manager" || session.role === "HR") items.push(["approve", "الطلبات", "shield"]);
   if (session.role === "HR") items.push(["inbox", "الرسايل", "msg"]);
   items.push(["profile", "الملف الشخصي", "user"]);
-  const act = p === "chat" ? (session.role === "HR" ? "inbox" : "profile") : p === "att" ? "profile" : (p === "mission" || p === "missionNew" || p === "team" || p === "reports") ? "home" : (p === "types" || p === "form" || p === "detail") ? "req" : p;
+  const act = p === "chat" ? (session.role === "HR" ? "inbox" : "profile") : p === "att" ? "profile" : (p === "mission" || p === "missionNew" || p === "team" || p === "report") ? "home" : (p === "types" || p === "form" || p === "detail") ? "req" : p;
   $("nav").innerHTML = items.map(i => '<button class="ni' + (i[0] === act ? ' on' : '') + '" onclick="go(\'' + i[0] + '\',\'root\')">' + ic(i[2], 24) + ((i[0] === "inbox" || (i[0] === "profile" && session.role !== "HR")) && msgUnread ? '<i class="ndot"></i>' : '') + '<span>' + i[1] + '</span></button>').join("");
 }
 function fillProfile(){
@@ -1426,7 +1397,7 @@ function openOwner(){
   $("oDate").value = oToday();
   hideMsg(); loadDash();
   clearInterval(dashTimer);
-  dashTimer = setInterval(() => { if ($("oDate").value === oToday() && $("oSheet").classList.contains("hidden") && !(isPhone() ? pv.v === "reports" : oView === "reports")) loadDash(); }, 60000);
+  dashTimer = setInterval(() => { if ($("oDate").value === oToday() && $("oSheet").classList.contains("hidden")) loadDash(); }, 60000);
 }
 async function loadDash(){
   try {
@@ -1448,13 +1419,14 @@ function renderOwner(){
   $("oWeekend").classList.toggle("hidden", !dash.isWeekend);
   const n = oFollow();
   $("oBellN").textContent = n; $("oBellN").classList.toggle("hidden", !n);
-  const items = [["home", "الرئيسية", "home"], ["emps", "الموظفون", "user"], ["reqs", "الطلبات", "file"], ["reports", "التقارير", "chart"], ["alerts", "الإشعارات", "bell"]];
+  const items = [["home", "الرئيسية", "home"], ["emps", "الموظفون", "user"], ["reqs", "الطلبات", "file"], ["report", "التقارير", "chart"], ["alerts", "الإشعارات", "bell"]];
   const mk = cls => items.map(i => '<button class="' + cls + (i[0] === oView ? ' on' : '') + '" onclick="oGo(\'' + i[0] + '\')">' + ic(i[2], 22) +
     (i[0] === "alerts" && n ? '<i class="obadge">' + n + '</i>' : '') + '<span>' + i[1] + '</span></button>').join("");
   $("oBotNav").innerHTML = mk("obn"); $("oSideNav").innerHTML = mk("osn");
-  $("oBody").innerHTML = { home: oHome, emps: oEmps, reqs: oReqs, alerts: oAlerts, reports: oReports }[oView]();
+  if (oView === "report" && $("repOut")) return;
+  $("oBody").innerHTML = { home: oHome, emps: oEmps, reqs: oReqs, alerts: oAlerts, report: oReport }[oView]();
   if (oView === "emps") oEList();
-  if (oView === "reports") repRender();
+  if (oView === "report") repMount($("repHostO"));
 }
 
 // الرئيسية
@@ -1580,14 +1552,16 @@ const pBar = (title, back) => '<div class="pgbar">' + title + (back ? '<button c
 const pSum = (bg, col, icn, label, n, unit) => '<div class="psum" style="background:' + bg + '"><span class="psic" style="color:' + col + '">' + ic(icn, 28) + '</span><div class="tx"><small style="color:' + col + '">' + label + '</small><b style="color:' + col + '">' + n + ' <span>' + unit + '</span></b></div></div>';
 
 function renderPhone(){
-  $("oPhone").innerHTML = { home: pHome, emps: pEmps, reqs: pReqs, alerts: pAlerts, more: pMore, emp: pEmp, reports: pReports }[pv.v]();
+  if (!(pv.v === "report" && $("repOut"))) {
+    $("oPhone").innerHTML = { home: pHome, emps: pEmps, reqs: pReqs, alerts: pAlerts, more: pMore, emp: pEmp, report: pReport }[pv.v]();
+    if (pv.v === "report") repMount($("repHostP"));
+  }
   const n = oFollow();
-  const items = [["home", "الرئيسية", "home"], ["emps", "الموظفون", "user"], ["reports", "التقارير", "chart"], ["alerts", "الإشعارات", "bell"], ["more", "المزيد", "menu"]];
+  const items = [["home", "الرئيسية", "home"], ["emps", "الموظفون", "user"], ["alerts", "الإشعارات", "bell"], ["more", "المزيد", "menu"]];
   $("pNav").innerHTML = items.map(i => '<button class="ni' + (pv.root && i[0] === pv.v ? ' on' : '') + '" onclick="pGo(\'' + i[0] + '\',\'\',true)">' + ic(i[2], 24) +
     (i[0] === "alerts" && n ? '<i class="obadge" style="top:-2px;left:auto;right:calc(50% - 22px)">' + n + '</i>' : '') + '<span>' + i[1] + '</span></button>').join("");
   $("pNav").classList.toggle("hidden", !pv.root);
   if (pv.v === "emps") pEList();
-  if (pv.v === "reports") repRender();
 }
 
 function pHome(){
@@ -1668,8 +1642,8 @@ function pAlerts(){
 function pMore(){
   const r = (icn, cls, title, sub, act) => '<button class="rl" onclick="' + act + '"><span class="ico ' + cls + '">' + ic(icn, 22) + '</span><span class="tx"><b>' + title + '</b><small>' + sub + '</small></span>' + ic("chev", 20) + '</button>';
   return pBar("المزيد", false) + '<div class="pad" style="display:grid;gap:10px">' +
-    r("chart", "b", "التقارير", "تقرير الشركة وتقرير الموظف وPDF", "pGo('reports')") +
     r("file", "b", "طلبات الموظفين", "الإجازات والأذونات والمأموريات", "pGo('reqs')") +
+    r("chart", "b", "التقارير", "تقارير الحضور الشهرية وتحميلها PDF", "pGo('report')") +
     r("user", "b", "الموظفون الحاضرون", "من سجّل حضوره اليوم", "pGo('emps','present')") +
     r("user", "o", "الموظفون الغائبون", "من لم يسجّل اليوم", "pGo('emps','absent')") +
     r("brief", "o", "المأموريات", "الموظفون في مأمورية اليوم", "pGo('emps','mission')") +
@@ -1695,134 +1669,120 @@ function pEmp(){
 }
 window.matchMedia("(max-width:899px)").addEventListener("change", () => { if (dash) renderOwner(); });
 
-// ===== التقارير (HR + صاحب الشركة) =====
-const rep = { type: "company", month: new Date().toLocaleDateString("en-CA").slice(0, 7), emp: "", q: "", emps: null, listing: false, data: null, loading: false, err: "", lastKey: "", tok: 0 };
-const RSTAT = { "حضور": ["#ddf5ea", "#14804a"], "تأخير": ["#fef3c7", "#92400e"], "غياب": ["#fde2e2", "#c43434"], "إجازة": ["#efe9ff", "#6d3fd1"], "مأمورية": ["#e0f2fe", "#075985"], "إجازة أسبوعية": ["#f1f5f9", "#475569"], "لم يسجّل بعد": ["#f1f5f9", "#475569"] };
-const repHM = m => Math.floor(m / 60) + ":" + ("0" + (m % 60)).slice(-2);
-const repKey = () => rep.type + "|" + rep.month + "|" + (rep.type === "employee" ? rep.emp : "");
-const repReady = () => /^\d{4}-\d{2}$/.test(rep.month) && (rep.type === "company" || !!rep.emp);
-const oReports = () => '<div id="repHostO"></div>';
-const pReports = () => pBar("التقارير", !pv.root) + '<div class="pad"><div id="repHostO"></div></div>';
-
-function repMonths(){
-  const out = [], n = new Date();
-  for (let i = 0; i < 12; i++) {
-    const d = new Date(n.getFullYear(), n.getMonth() - i, 1);
-    out.push([d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2), d.toLocaleDateString("ar-EG-u-nu-latn", { month: "long", year: "numeric" })]);
-  }
-  return out;
-}
-function repSet(k, v){ if (rep[k] === v) return; rep[k] = v; rep.tok++; rep.loading = false; rep.data = null; rep.err = ""; repRender(); }
-function repPick(id){ rep.emp = id; rep.q = ""; rep.tok++; rep.loading = false; rep.data = null; rep.err = ""; repRender(); }
-
-async function repLoadList(){
-  rep.listing = true;
-  try {
-    const r = await call("report", { ...me(), type: "list" });
-    if (!r.ok) throw new Error(r.error);
-    rep.emps = r.list;
-  } catch (e) { rep.emps = []; show(e.message || "حصل خطأ", "err"); }
-  rep.listing = false; repRender();
-}
-
-async function repLoad(force){
-  if (!repReady()) return;
-  rep.lastKey = repKey();
-  const tok = ++rep.tok;
-  rep.loading = true; rep.err = ""; if (force) rep.data = null;
-  repRender();
-  try {
-    const r = await call("report", { ...me(), type: rep.type, month: rep.month, employeeId: rep.emp });
-    if (tok !== rep.tok) return;
-    if (!r.ok) throw new Error(r.error);
-    rep.data = r;
-  } catch (e) {
-    if (tok !== rep.tok) return;
-    rep.data = null; rep.err = e.message || "حصل خطأ";
-  }
-  rep.loading = false; repRender();
-}
-
-function repRender(){
-  const host = $(session.role === "Owner" ? "repHostO" : "repHost"); if (!host) return;
-  if (!rep.emps && !rep.listing) repLoadList();
-  const tabs = [["company", "تقرير الشركة"], ["employee", "تقرير موظف"]];
-  const chosen = rep.type === "employee" && rep.emp ? (rep.emps || []).find(e => e.id === rep.emp) : null;
-  let h = '<div class="rctl"><label>نوع التقرير</label><div class="tabs" style="margin:0">' +
-    tabs.map(t => '<button class="tab' + (rep.type === t[0] ? ' on' : '') + '" onclick="repSet(\'type\',\'' + t[0] + '\')">' + t[1] + '</button>').join("") + '</div>' +
-    '<label>الشهر</label><select onchange="repSet(\'month\',this.value)">' +
-    repMonths().map(m => '<option value="' + m[0] + '"' + (m[0] === rep.month ? ' selected' : '') + '>' + m[1] + '</option>').join("") + '</select>';
-  if (rep.type === "employee") {
-    h += '<label>الموظف</label>';
-    if (rep.emp) {
-      h += '<div class="rchip"><span class="oav">' + esc(String(chosen ? chosen.name : rep.emp).charAt(0)) + '</span><span class="tx"><b>' + esc(chosen ? chosen.name : rep.emp) + '</b><small>' + esc(rep.emp) + (chosen && chosen.job ? ' - ' + esc(chosen.job) : '') + '</small></span><button onclick="repPick(\'\')">تغيير</button></div>';
-    } else {
-      h += '<div class="osrch" style="margin-top:0">' + ic("search", 20) + '<input id="repQ" placeholder="ابحث بالاسم أو الكود..." value="' + esc(rep.q) + '" oninput="rep.q=this.value;repEmpList()" autocomplete="off"></div><div id="repEL"></div>';
-    }
-  }
-  h += '<div class="ract"><button class="rb1" onclick="repLoad(true)"' + (repReady() && !rep.loading ? '' : ' disabled') + '>' + ic("refresh", 18) + 'تحديث</button>' +
-    '<button class="rb2" onclick="repPrint()"' + (rep.data && !rep.loading ? '' : ' disabled') + '>' + ic("dl", 18) + 'تحميل PDF</button></div></div>';
-  if (rep.loading) h += '<div class="empty">جاري تحميل التقرير...</div>';
-  else if (rep.err) h += '<div class="empty" style="color:var(--red)">' + esc(rep.err) + '</div>';
-  else if (rep.data) h += repBody(rep.data);
-  else if (rep.type === "employee" && !rep.emp) h += '<div class="empty">اختار الموظف عشان يظهر التقرير</div>';
-  host.innerHTML = h;
-  if (rep.type === "employee" && !rep.emp) repEmpList();
-  if (repReady() && !rep.loading && !rep.data && rep.lastKey !== repKey()) repLoad();
-}
-
-function repEmpList(){
-  const el = $("repEL"); if (!el) return;
-  if (!rep.emps) { el.innerHTML = '<div class="empty">جاري تحميل الموظفين...</div>'; return; }
-  const q = rep.q.trim().toLowerCase();
-  const list = rep.emps.filter(e => !q || (e.name + " " + e.id + " " + e.job).toLowerCase().indexOf(q) !== -1).slice(0, 8);
-  el.innerHTML = list.length ? list.map(e =>
-    '<button class="orow" onclick="repPick(\'' + esc(e.id) + '\')"><span class="oav">' + esc(String(e.name).charAt(0)) + '</span>' +
-    '<span class="tx"><b>' + esc(e.name) + '</b><small>' + esc(e.id) + (e.job ? ' - ' + esc(e.job) : '') + '</small></span></button>').join("") : '<div class="empty">مفيش موظف بالاسم ده</div>';
-}
-
-const repSt = s => { const c = RSTAT[s] || ["#f1f5f9", "#475569"]; return '<span class="rs" style="background:' + c[0] + ';color:' + c[1] + '">' + esc(s) + '</span>'; };
-const repStat = (l, v) => '<div class="rst"><small>' + l + '</small><b>' + v + '</b></div>';
-
-function repBody(d){
-  if (d.kind === "company") {
-    const R = d.rows, sum = k => R.reduce((s, r) => s + r[k], 0);
-    const head = ["الكود", "الاسم", "القسم", "أيام الحضور", "التأخير (مرات)", "دقايق التأخير", "أيام الغياب", "أيام الإجازة", "أيام المأمورية", "إجمالي الساعات"];
-    return '<div class="rgrid">' + repStat("عدد الموظفين", R.length) + repStat("إجمالي أيام الحضور", sum("attended")) + repStat("إجمالي أيام الغياب", sum("absent")) + repStat("إجمالي دقايق التأخير", sum("lateMin")) + '</div>' +
-      '<div class="rtwrap"><table class="rtb"><thead><tr>' + head.map(x => '<th>' + x + '</th>').join("") + '</tr></thead><tbody>' +
-      (R.length ? R.map(r => '<tr><td>' + esc(r.id) + '</td><td class="l">' + esc(r.name) + '</td><td>' + esc(r.dept || "-") + '</td><td>' + r.attended + '</td><td>' + r.late + '</td><td>' + r.lateMin + '</td><td>' + r.absent + '</td><td>' + r.leave + '</td><td>' + r.mission + '</td><td>' + repHM(r.totalMin) + '</td></tr>').join("") : '<tr><td colspan="10">مفيش موظفين</td></tr>') +
-      '</tbody><tfoot><tr><td></td><td>الإجمالي</td><td></td><td>' + sum("attended") + '</td><td>' + sum("late") + '</td><td>' + sum("lateMin") + '</td><td>' + sum("absent") + '</td><td>' + sum("leave") + '</td><td>' + sum("mission") + '</td><td>' + repHM(sum("totalMin")) + '</td></tr></tfoot></table></div>';
-  }
-  const e = d.emp, s = d.stats, row = (l, v) => '<div class="prow"><span class="sub">' + l + '</span><b>' + esc(v) + '</b></div>';
-  return '<div class="rinfo">' + row("الاسم", e.name) + row("الكود", e.id) + row("المسمى الوظيفي", e.job || "-") + row("القسم", e.dept || "-") + '</div>' +
-    '<div class="rgrid">' + repStat("أيام الحضور", s.attended) + repStat("إجمالي ساعات العمل", repHM(s.totalMin)) + repStat("مرات التأخير", s.late) + repStat("دقايق التأخير", s.lateMin) +
-    repStat("أيام الغياب", s.absent) + repStat("متوسط ساعات اليوم", repHM(s.avgMin)) + repStat("أيام الإجازة", s.leave) + repStat("أيام المأمورية", s.mission) + '</div>' +
-    '<div class="rtwrap"><table class="rtb"><thead><tr><th>التاريخ</th><th>اليوم</th><th>الحضور</th><th>الانصراف</th><th>المدة</th><th>الحالة</th><th>تفاصيل</th></tr></thead><tbody>' +
-    (d.days.length ? d.days.map(x => '<tr><td>' + esc(x.date) + '</td><td>' + esc(x.dayName) + '</td><td>' + esc(x.inT || "-") + '</td><td>' + esc(x.outT || "-") + '</td><td>' + (x.minutes ? repHM(x.minutes) : "-") + '</td><td>' + repSt(x.status) + '</td><td>' + (x.lateMin ? "تأخير " + x.lateMin + " دقيقة" : "") + '</td></tr>').join("") : '<tr><td colspan="7">مفيش أيام في الشهر ده</td></tr>') +
-    '</tbody></table></div>';
-}
-
-// تحميل PDF: بنفتح شاشة الطباعة من المتصفح واختار "حفظ كـ PDF" (ده بيطلّع العربي سليم)
-function repPrint(){
-  const d = rep.data; if (!d) return;
-  const title = d.kind === "company" ? "تقرير الشركة الشهري" : "تقرير حضور الموظف الشهري";
-  const mlabel = (repMonths().find(m => m[0] === d.month) || [0, d.month])[1];
-  $("repPrint").innerHTML = '<h1>' + title + '</h1><div class="prm">الشهر: ' + esc(mlabel) + ' (' + esc(d.month) + ') &nbsp;|&nbsp; تاريخ الإصدار: ' + new Date().toLocaleDateString("en-CA") + ' &nbsp;|&nbsp; أصدره: ' + esc(session.name) + '</div>' + repBody(d);
-  let st = $("repPage");
-  if (!st) { st = document.createElement("style"); st.id = "repPage"; document.head.appendChild(st); }
-  st.textContent = "@page{size:A4 " + (d.kind === "company" ? "landscape" : "portrait") + ";margin:12mm}";
-  document.body.classList.add("printing-rep");
-  const done = () => { document.body.classList.remove("printing-rep"); window.removeEventListener("afterprint", done); };
-  window.addEventListener("afterprint", done);
-  setTimeout(() => window.print(), 150);
-}
-
 // ===== تثبيت التطبيق =====
 let deferredPrompt = null;
 const isStandalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 const ua = navigator.userAgent;
 const isIOS = /iphone|ipad|ipod/i.test(ua);
 const inApp = /FBAN|FBAV|Instagram|Line\/|; wv\)|WhatsApp|Telegram/i.test(ua);
+// ===== التقارير (HR وصاحب الشركة) =====
+const rep = { type: "company", month: "", emp: "", data: null, emps: [] };
+const REP_COL = { "حضور": "#DDF5EA", "تأخير": "#FEF3C7", "غياب": "#FDE2E2", "إجازة": "#EFE9FF", "مأمورية": "#E0F2FE", "إجازة أسبوعية": "#F1F5F9", "لم يسجّل بعد": "#F1F5F9" };
+const repHM = m => Math.floor(m / 60) + ":" + ("0" + (m % 60)).slice(-2);
+const oReport = () => '<div id="repHostO"></div>';
+const pReport = () => pBar("التقارير", true) + '<div class="pad"><div id="repHostP"></div></div>';
+function fillRepEmps(){
+  const sel = $("repEmp"); if (!sel) return;
+  sel.innerHTML = rep.emps.map(e => '<option value="' + esc(e.id) + '">' + esc(e.name) + " (" + esc(e.id) + ")</option>").join("");
+  if (rep.emp) sel.value = rep.emp;
+}
+function repMount(host){
+  if (!host) return;
+  if (!rep.month) rep.month = curMonth();
+  host.innerHTML = '<div class="repctl">' +
+    '<div><label>نوع التقرير</label><select id="repType"><option value="company">تقرير الشركة</option><option value="employee">تقرير موظف</option></select></div>' +
+    '<div><label>الشهر</label><input type="month" id="repMonth"></div>' +
+    '<div id="repEmpBox" class="hidden"><label>الموظف</label><select id="repEmp"></select></div>' +
+    '<button class="primary" id="repShow">عرض التقرير</button></div><div id="repOut"></div>';
+  $("repType").value = rep.type; $("repMonth").value = rep.month;
+  fillRepEmps();
+  $("repEmpBox").classList.toggle("hidden", rep.type !== "employee");
+  $("repType").onchange = () => { rep.type = $("repType").value; $("repEmpBox").classList.toggle("hidden", rep.type !== "employee"); };
+  $("repMonth").onchange = () => { rep.month = $("repMonth").value; };
+  $("repEmp").onchange = () => { rep.emp = $("repEmp").value; };
+  $("repShow").onclick = repLoad;
+  if (rep.data && rep.data.type === rep.type) repDraw(); else repLoad();
+}
+async function repLoad(){
+  rep.type = $("repType").value; rep.month = $("repMonth").value || curMonth();
+  if (rep.type === "employee") rep.emp = $("repEmp").value || (rep.emps[0] && rep.emps[0].id) || "";
+  $("repShow").disabled = true; show("جاري تحميل التقرير...", "info");
+  try {
+    const r = await call("report", { ...me(), type: rep.type, month: rep.month, employeeId: rep.emp });
+    if (!r.ok) throw new Error(r.error);
+    rep.data = r; rep.emps = r.emps || rep.emps; hideMsg();
+    if (!$("repOut")) return;
+    fillRepEmps(); repDraw();
+  } catch (e) { show(e.message || "حصل خطأ", "err"); }
+  finally { const b = $("repShow"); if (b) b.disabled = false; }
+}
+const repTitle = d => d.type === "company" ? "تقرير الشركة الشهري - " + esc(d.month) : "تقرير حضور: " + esc(d.emp.name) + " (" + esc(d.emp.id) + ") - " + esc(d.month);
+function repInner(d){
+  if (d.type === "employee") {
+    const s = d.summary, c = (l, v) => "<div><small>" + l + "</small><b>" + v + "</b></div>";
+    const sum = '<div class="rsum">' + c("أيام الحضور", s.attended) + c("إجمالي ساعات العمل", repHM(s.totalMin)) + c("مرات التأخير", s.late) + c("دقايق التأخير", s.lateMin) +
+      c("أيام الغياب", s.absent) + c("أيام الإجازة", s.leave) + c("أيام المأمورية", s.mission) + c("متوسط ساعات اليوم", repHM(s.avgMin)) + "</div>";
+    const body = d.days.map(x => "<tr><td>" + esc(x.date) + "</td><td>" + esc(x.dayName) + "</td><td>" + (esc(x.inT) || "-") + "</td><td>" + (esc(x.outT) || "-") + "</td><td>" +
+      (x.minutes ? repHM(x.minutes) : "-") + '</td><td><span class="rst" style="background:' + (REP_COL[x.status] || "#fff") + '">' + esc(x.status) + "</span></td><td>" +
+      (x.lateMin ? "تأخير " + x.lateMin + " دقيقة" : "") + "</td></tr>").join("");
+    return sum + '<div class="rtw"><table class="rt"><tr><th>التاريخ</th><th>اليوم</th><th>الحضور</th><th>الانصراف</th><th>المدة</th><th>الحالة</th><th>تفاصيل</th></tr>' +
+      (body || '<tr><td colspan="7">مفيش أيام في الشهر ده</td></tr>') + "</table></div>";
+  }
+  const t = d.totals, c = (l, v) => "<div><small>" + l + "</small><b>" + v + "</b></div>";
+  const sum = '<div class="rsum">' + c("عدد الموظفين", d.rows.length) + c("إجمالي أيام الحضور", t.attended) + c("إجمالي أيام الغياب", t.absent) + c("إجمالي دقايق التأخير", t.lateMin) + "</div>";
+  const body = d.rows.map(r => "<tr><td>" + esc(r.id) + "</td><td>" + esc(r.name) + "</td><td>" + (esc(r.dept) || "-") + "</td><td>" + r.attended + "</td><td>" + r.late + "</td><td>" + r.lateMin + "</td><td>" +
+    r.absent + "</td><td>" + r.leave + "</td><td>" + r.mission + "</td><td>" + repHM(r.totalMin) + "</td></tr>").join("");
+  return sum + '<div class="rtw"><table class="rt"><tr><th>الكود</th><th>الاسم</th><th>القسم</th><th>أيام الحضور</th><th>التأخير (مرات)</th><th>دقايق التأخير</th><th>أيام الغياب</th><th>أيام الإجازة</th><th>أيام المأمورية</th><th>إجمالي الساعات</th></tr>' +
+    body + '<tr class="rtot"><td></td><td>الإجمالي</td><td></td><td>' + t.attended + "</td><td>" + t.late + "</td><td>" + t.lateMin + "</td><td>" + t.absent + "</td><td>" + t.leave + "</td><td>" + t.mission + "</td><td>" + repHM(t.totalMin) + "</td></tr></table></div>";
+}
+function repDraw(){
+  const d = rep.data; if (!d || !$("repOut")) return;
+  $("repOut").innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0 6px;gap:8px;flex-wrap:wrap"><b style="font-size:17px">' + repTitle(d) +
+    '</b><button class="primary" id="repPdf" style="width:auto;margin:0;padding:10px 16px;font-size:14px;display:flex;gap:6px;align-items:center">' + ic("download", 18) + " تحميل PDF</button></div>" + repInner(d);
+  $("repPdf").onclick = repPdf;
+}
+const loadScript = src => new Promise((res, rej) => {
+  if (document.querySelector('script[src="' + src + '"]')) return res();
+  const t = document.createElement("script"); t.src = src; t.onload = res;
+  t.onerror = () => rej(new Error("تعذر تحميل أداة الـ PDF، اتأكد من الإنترنت وجرّب تاني"));
+  document.head.appendChild(t);
+});
+async function repPdf(){
+  const d = rep.data; if (!d) return;
+  const btn = $("repPdf"); btn.disabled = true; show("جاري تجهيز الـ PDF...", "info");
+  let el = null;
+  try {
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js");
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    const land = d.type === "company";
+    el = document.createElement("div"); el.className = "rpdf"; el.style.width = (land ? 1120 : 794) + "px";
+    el.innerHTML = "<h2>" + repTitle(d) + '</h2><div style="color:#64748b;font-size:13px;margin-bottom:10px">تاريخ الإصدار: ' + esc(d.issued) + "</div>" + repInner(d);
+    document.body.appendChild(el);
+    const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#ffffff" });
+    const top0 = el.getBoundingClientRect().top;
+    const brk = Array.from(el.querySelectorAll("tr")).map(tr => tr.getBoundingClientRect().bottom - top0);
+    const pdf = new window.jspdf.jsPDF({ orientation: land ? "l" : "p", unit: "pt", format: "a4" });
+    const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight(), m = 24;
+    const k = (pw - 2 * m) / el.offsetWidth, pageH = (ph - 2 * m) / k, total = el.offsetHeight, sc = canvas.width / el.offsetWidth;
+    let start = 0, first = true;
+    while (start < total - 1) {
+      let end = Math.min(start + pageH, total);
+      if (end < total) { const cand = brk.filter(b => b > start + 40 && b <= end); if (cand.length) end = cand[cand.length - 1]; }
+      const sy = Math.round(start * sc), sh = Math.min(Math.round((end - start) * sc), canvas.height - sy);
+      if (sh <= 0) break;
+      const sl = document.createElement("canvas"); sl.width = canvas.width; sl.height = sh;
+      sl.getContext("2d").drawImage(canvas, 0, sy, canvas.width, sh, 0, 0, canvas.width, sh);
+      if (!first) pdf.addPage(); first = false;
+      pdf.addImage(sl.toDataURL("image/jpeg", 0.92), "JPEG", m, m, pw - 2 * m, (sh / sc) * k);
+      start = end;
+    }
+    pdf.save((land ? "company-report-" : "employee-" + d.emp.id + "-") + d.month + ".pdf");
+    show("تم تحميل التقرير", "ok");
+  } catch (e) { show(e.message || "حصل خطأ في تجهيز الـ PDF", "err"); }
+  finally { if (el && el.parentNode) el.parentNode.removeChild(el); const b = $("repPdf"); if (b) b.disabled = false; }
+}
+
 function showInstall(text, withBtn){
   if (isStandalone) return;
   $("installText").textContent = text;
