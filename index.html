@@ -121,6 +121,9 @@
   .mnav button:disabled{opacity:.25}
   .mnav b{font-size:16px}
   .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+  .sgrid.s3{grid-template-columns:repeat(3,1fr);gap:8px}
+  .sgrid.s3 .stat{flex-direction:column;align-items:flex-start;gap:6px;padding:10px}
+  .sgrid.s3 .stat b{font-size:20px}
   .stat{background:#fff;border-radius:16px;padding:12px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 10px rgba(15,30,61,.05)}
   .stat small{display:block;color:var(--muted);font-size:12px;line-height:1.4}.stat b{font-size:24px;color:var(--ink)}
   .atable{background:#fff;border-radius:16px;box-shadow:0 2px 10px rgba(15,30,61,.05);overflow:hidden}
@@ -370,7 +373,7 @@
       <div class="rowlinks">
         <button class="rl" onclick="go('req')"><span class="ico b" data-ic="file"></span><span class="tx"><b>طلباتي</b><small>تقديم إجازة أو إذن ومتابعة حالتها</small></span><span data-ic="chev" data-s="20"></span></button>
         <button class="rl hidden" id="reportRow" onclick="go('reports')"><span class="ico b" data-ic="chart"></span><span class="tx"><b>التقارير</b><small>تقرير الشركة وتقرير الموظف وتحميل PDF</small></span><span data-ic="chev" data-s="20"></span></button>
-        <button class="rl" id="missionRow" onclick="go('mission')"><span class="ico o" data-ic="brief"></span><span class="tx"><b>المأمورية</b><small>سجّل مأمورية واليوم يتحسبلك حضور</small></span><span data-ic="chev" data-s="20"></span></button>
+        <button class="rl" id="missionRow" onclick="go('mission')"><span class="ico o" data-ic="brief"></span><span class="tx"><b>المأمورية</b><small>سجّل مأمورية وابعتها للمدير للاعتماد</small></span><span data-ic="chev" data-s="20"></span></button>
       </div>
     </section>
 
@@ -440,11 +443,11 @@
     <section id="pgMissionNew" class="hidden">
       <div class="pgbar">مأمورية جديدة<button class="back" onclick="back()" aria-label="رجوع" data-ic="back" data-s="24"></button></div>
       <div class="pad">
-        <div class="sub">سجّل المأمورية قبل ما تخرج، واليوم ده هيتحسبلك حضور.</div>
+        <div class="sub">سجّل المأمورية قبل ما تخرج واختار المدير اللي هيعتمدها. اليوم ده هيتحسبلك حضور بعد ما يوافق.</div>
         <label>تاريخ المأمورية</label><input id="mDate" type="date">
-        <label>اسم اللي كلّفك بالمأمورية</label><input id="mBy" maxlength="100" placeholder="مثال: م. أحمد">
+        <label>المدير المسؤول عن اعتماد المأمورية</label><select id="mBy"></select>
         <label>الجهة أو الغرض (اختياري)</label><textarea id="mDetails" rows="3" maxlength="300"></textarea>
-        <button class="primary" id="mSend" style="display:flex;align-items:center;justify-content:center;gap:8px"><span data-ic="send" data-s="20"></span>تسجيل المأمورية</button>
+        <button class="primary" id="mSend" style="display:flex;align-items:center;justify-content:center;gap:8px"><span data-ic="send" data-s="20"></span>إرسال للاعتماد</button>
       </div>
     </section>
 
@@ -456,9 +459,10 @@
           <b><span id="mLabel"></span></b>
           <button id="mNext" aria-label="الشهر التالي" data-ic="chev" data-s="24"></button>
         </div>
-        <div class="sgrid">
+        <div class="sgrid s3">
           <div class="stat"><span class="ico b" data-ic="cal"></span><div><small>عدد الأيام</small><b id="sDays">-</b></div></div>
           <div class="stat"><span class="ico b" data-ic="clock"></span><div><small>ساعات العمل (متوسط)</small><b id="sAvg">-</b></div></div>
+          <div class="stat"><span class="ico b" data-ic="chart"></span><div><small>إجمالي ساعات الشهر</small><b id="sTot">-</b></div></div>
         </div>
         <div class="atable" id="attTable">
           <div class="ath"><span>التاريخ</span><span>الحضور</span><span>الانصراف</span><span>المدة</span><span>الحالة</span></div>
@@ -798,7 +802,7 @@ function go(p, how){
   if (p === "types") renderTypes();
   if (p === "mission") loadMissions();
   if (p === "team") loadTeam();
-  if (p === "missionNew") { $("mDate").value = new Date().toLocaleDateString("en-CA"); $("mBy").value = ""; $("mDetails").value = ""; }
+  if (p === "missionNew") { $("mDate").value = new Date().toLocaleDateString("en-CA"); $("mDetails").value = ""; loadMgrs(); }
   if (p === "att") { if (how !== "back") attMonth = curMonth(); loadAtt(); }
   if (p === "approve") loadPending();
   if (p === "inbox") loadInbox();
@@ -909,7 +913,7 @@ function setLeadRow(){
   row.querySelector(".ico").innerHTML = ic(lead ? "user" : "brief", 22);
   row.querySelector(".tx").innerHTML = lead
     ? '<b>' + (hr ? 'كل الموظفين' : 'فريقي') + '</b><small>' + (hr ? 'بيانات كل موظفي الشركة' : 'الموظفين التابعين لك وبياناتهم') + '</small>'
-    : '<b>المأمورية</b><small>سجّل مأمورية واليوم يتحسبلك حضور</small>';
+    : '<b>المأمورية</b><small>سجّل مأمورية وابعتها للمدير للاعتماد</small>';
 }
 let teamAll = [], teamDept = "all";
 async function loadTeam(){
@@ -973,6 +977,7 @@ function splitReason(r){
 }
 const typeOf = n => TYPES.find(t => t.n === n) || { n, s: "", g: "permit", ic: "file", c: "#4a6cf7", bg: "#e8ecff" };
 const dsp = v => fmtDate(v).replace(/-/g, "/");
+const timeTxt = v => { const d = new Date(v); return isNaN(d) ? "" : d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }); };
 const isPend = r => r.Status === "بانتظار المدير" || r.Status === "بانتظار HR";
 const SB = { "بانتظار المدير": ["قيد المراجعة", ""], "بانتظار HR": ["قيد المراجعة", ""], "موافق": ["مقبول", "yes"], "مرفوض": ["مرفوض", "no"], "ملغي": ["ملغي", "gray"] };
 function sbadge(st){ const x = SB[st] || [st, "gray"]; return '<span class="badge ' + x[1] + '">' + esc(x[0]) + '</span>'; }
@@ -1118,7 +1123,7 @@ async function cancelReq(requestId){
 // ===== الطلبات المعلّقة (مدير / HR) =====
 function apCount(n){ $("apCount").textContent = n ? n + (n === 1 ? " طلب معلّق" : " طلبات معلّقة") : ""; }
 function apCard(x){
-  const t = typeOf(x.Type), leave = t.g === "leave", sp = splitReason(x), hr = session.role === "HR";
+  const isM = !!x.IsMission, t = isM ? { ic: "brief", c: "#b36b00", bg: "#fff3d6" } : typeOf(x.Type), leave = t.g === "leave", sp = splitReason(x), hr = session.role === "HR";
   const name = String(x.EmpName || x.EmployeeID);
   let chips = "";
   if (x.EmpBalance != null) {
@@ -1130,8 +1135,9 @@ function apCard(x){
     '<div class="aph"><span class="apav" data-ph="' + esc(x.EmployeeID) + '">' + esc(name.charAt(0)) + '</span>' +
     '<div class="tx"><b>' + esc(name) + '</b><small>' + esc(x.EmployeeID) + '</small></div>' +
     '<span class="aptype" style="background:' + t.bg + ';color:' + t.c + '">' + ic(t.ic, 15) + esc(x.Type) + '</span></div>' +
-    '<div class="apd">' + ic("cal", 18) + '<span>' + rangeTxt(x) + (leave && x.Days ? ' (' + esc(x.Days) + ' يوم)' : '') + '</span></div>' +
-    (sp.note ? '<div class="apr">' + esc(sp.note) + '</div>' : '') +
+    '<div class="apd">' + ic("cal", 18) + '<span>' + (isM ? dsp(x.FromDate) : rangeTxt(x) + (leave && x.Days ? ' (' + esc(x.Days) + ' يوم)' : '')) + '</span></div>' +
+    (isM && x.CreatedAt ? '<div class="apd">' + ic("clock", 18) + '<span>وقت التسجيل: ' + timeTxt(x.CreatedAt) + '</span></div>' : '') +
+    (sp.note ? '<div class="apr">' + (isM ? 'الجهة/الغرض: ' : '') + esc(sp.note) + '</div>' : '') +
     (chips ? '<div>' + chips + '</div>' : '') +
     '<div class="apa"><button class="apb ok" onclick="decide(\'' + esc(x.RequestID) + '\',\'موافق\',this)">' + ic("check", 18) + 'موافقة</button>' +
     '<button class="apb no" onclick="decide(\'' + esc(x.RequestID) + '\',\'مرفوض\',this)">' + ic("x", 18) + 'رفض</button></div></div>';
@@ -1163,17 +1169,35 @@ async function decide(requestId, decision, btn){
   } catch (e) { btns.forEach(b => b.disabled = false); show(e.message || "حصل خطأ", "err"); }
 }
 
-// ===== المأموريات (تسجيل فقط) =====
+// ===== المأموريات (بتتبعت لمدير يعتمدها) =====
 $("mDate").value = new Date().toLocaleDateString("en-CA");
-$("mSend").onclick = async () => {
-  const date = $("mDate").value, assignedBy = $("mBy").value.trim(), details = $("mDetails").value.trim();
-  if (!date) return show("اختار التاريخ", "err");
-  if (!assignedBy) return show("اكتب اسم اللي كلّفك", "err");
-  $("mSend").disabled = true; show("جاري التسجيل...", "info");
+let mgrOpts = null;
+function fillMgrs(){
+  const sel = $("mBy"), keep = sel.value;
+  if (!mgrOpts) { sel.innerHTML = '<option value="">جاري تحميل المديرين...</option>'; return; }
+  if (!mgrOpts.length) { sel.innerHTML = '<option value="">مفيش مديرين متسجلين</option>'; return; }
+  sel.innerHTML = '<option value="">اختار المدير</option>' + mgrOpts.map(m =>
+    '<option value="' + esc(m.id) + '">' + esc(m.name) + (m.job ? ' - ' + esc(m.job) : '') + (m.mine ? ' (مديري المباشر)' : '') + '</option>').join("");
+  if (keep) sel.value = keep;
+}
+async function loadMgrs(){
+  fillMgrs();
   try {
-    const r = await call("mission", { ...me(), date, assignedBy, details });
+    const r = await call("myMissions", me());
     if (!r.ok) throw new Error(r.error);
-    back(); show("تم تسجيل المأمورية ✅ واليوم اتحسبلك حضور", "ok");
+    mgrOpts = r.managers || [];
+    fillMgrs();
+  } catch (e) { show(e.message || "حصل خطأ", "err"); }
+}
+$("mSend").onclick = async () => {
+  const date = $("mDate").value, managerId = $("mBy").value, details = $("mDetails").value.trim();
+  if (!date) return show("اختار التاريخ", "err");
+  if (!managerId) return show("اختار المدير اللي هيعتمد المأمورية", "err");
+  $("mSend").disabled = true; show("جاري الإرسال...", "info");
+  try {
+    const r = await call("mission", { ...me(), date, managerId, details });
+    if (!r.ok) throw new Error(r.error);
+    back(); show("تم إرسال المأمورية للمدير للاعتماد ✅", "ok");
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
   finally { $("mSend").disabled = false; }
 };
@@ -1181,10 +1205,14 @@ async function loadMissions(){
   try {
     const r = await call("myMissions", me());
     if (!r.ok) throw new Error(r.error);
+    mgrOpts = r.managers || mgrOpts;
+    const bd = st => st === "بانتظار الاعتماد" ? '<span class="badge">بانتظار الاعتماد</span>'
+      : st === "مرفوض" ? '<span class="badge no">مرفوضة</span>' : '<span class="badge yes">معتمدة</span>';
     $("mList").innerHTML = r.list.length ? r.list.map(x =>
       '<div class="li"><span class="ico o">' + ic("brief", 22) + '</span><span class="tx"><b>' + dsp(x.Date) + '</b>' +
-      '<small>كلّفه: ' + esc(x.AssignedBy) + '</small>' + (x.Details ? '<small>' + esc(x.Details) + '</small>' : '') + '</span>' +
-      '<span class="end"><span class="badge yes">مسجّلة</span></span></div>'
+      (x.CreatedAt ? '<small>وقت التسجيل: ' + timeTxt(x.CreatedAt) + '</small>' : '') +
+      '<small>المدير: ' + esc(x.AssignedBy) + '</small>' + (x.Details ? '<small>' + esc(x.Details) + '</small>' : '') + '</span>' +
+      '<span class="end">' + bd(x.Status) + '</span></div>'
     ).join("") : '<div class="empty">لسه مفيش مأموريات. اضغط «مأمورية جديدة» لتسجيل أول مأمورية</div>';
   } catch (e) { show(e.message || "حصل خطأ", "err"); }
 }
@@ -1209,13 +1237,14 @@ async function loadAtt(){
   $("mLabel").textContent = new Date(Number(p[0]), Number(p[1]) - 1, 1).toLocaleDateString("ar-EG", { month: "long", year: "numeric" });
   $("mNext").disabled = attMonth >= curMonth();
   $("attList").innerHTML = '<div class="empty">جاري التحميل...</div>';
-  ["sDays", "sAvg"].forEach(i => $(i).textContent = "-");
+  ["sDays", "sAvg", "sTot"].forEach(i => $(i).textContent = "-");
   try {
     const r = await call("myAttendance", { ...me(), month: attMonth });
     if (tok !== attTok) return;
     if (!r.ok) throw new Error(r.error);
     $("sDays").textContent = r.daysCount;
     $("sAvg").textContent = hm(r.avgMinutes);
+    $("sTot").textContent = hm(r.list.reduce((t, x) => t + (x.minutes || 0), 0));
     $("attList").innerHTML = r.list.length ? r.list.map(x => {
       const dt = new Date(x.date + "T12:00:00");
       const wd = dt.toLocaleDateString("ar-EG", { weekday: "long" });
