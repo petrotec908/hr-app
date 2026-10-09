@@ -746,7 +746,7 @@ $("loginBtn").onclick = async () => {
   try {
     const r = await call("login", { id, pin });
     if (!r.ok) throw new Error(r.error);
-    session = { id, pin, name: r.name, role: r.role, jobTitle: r.jobTitle || "", phone: r.phone || "", department: r.department || "", insurance: r.insurance || "", manager: r.manager || "", available: r.available };
+    session = { id, pin, name: r.name, role: r.role, jobTitle: r.jobTitle || "", phone: r.phone || "", department: r.department || "", insurance: r.insurance || "", manager: r.manager || "", available: r.available, holidays: r.holidays || [] };
     store.set("session", JSON.stringify(session));
     hideMsg(); openMain();
   } catch (e) {
@@ -769,7 +769,7 @@ async function refreshMe(){
   try {
     const r = await call("login", me());
     if (!r.ok) return;
-    Object.assign(session, { name: r.name, role: r.role, jobTitle: r.jobTitle || "", phone: r.phone || "", department: r.department || "", insurance: r.insurance || "", manager: r.manager || "", available: r.available });
+    Object.assign(session, { name: r.name, role: r.role, jobTitle: r.jobTitle || "", phone: r.phone || "", department: r.department || "", insurance: r.insurance || "", manager: r.manager || "", available: r.available, holidays: r.holidays || [] });
     store.set("session", JSON.stringify(session));
     fillHeader(); balUI();
   } catch (e) {}
@@ -1013,12 +1013,13 @@ function newReq(i){
   $("rFrom").value = today; $("rTo").value = today; $("rReason").value = "";
   calcDays(); balUI(); go("form");
 }
+function isHol(ds){ return (session.holidays || []).some(h => h[0] <= ds && ds <= h[1]); }
 function workDays(a, b){
   if (!a || !b || b < a) return 0;
   let n = 0;
   const d = new Date(a + "T12:00:00"), e = new Date(b + "T12:00:00");
   for (let i = 0; i < 366 && d <= e; i++) {
-    if (WEEKEND.indexOf(d.getDay()) === -1) n++;
+    if (WEEKEND.indexOf(d.getDay()) === -1 && !isHol(d.toLocaleDateString("en-CA"))) n++;
     d.setDate(d.getDate() + 1);
   }
   return n;
@@ -1029,7 +1030,7 @@ function calcDays(){
   $("rDays").value = a && b ? n : "";
   let h = "";
   if (a && b && b < a) h = "تاريخ الانتهاء قبل تاريخ البدء";
-  else if (a && b && n === 0) h = "الفترة دي كلها إجازة أسبوعية";
+  else if (a && b && n === 0) h = "الفترة دي كلها إجازة أسبوعية أو رسمية";
   else if (curType && curType.bal && session.available != null && n > session.available) h = "الرصيد المتاح " + session.available + " يوم بس";
   $("rHint").textContent = h;
 }
@@ -1049,7 +1050,7 @@ $("rSend").onclick = async () => {
   }
   if (leave) {
     const n = workDays(from, to);
-    if (n < 1) return show("الفترة دي كلها إجازة أسبوعية", "err");
+    if (n < 1) return show("الفترة دي كلها إجازة أسبوعية أو رسمية", "err");
     if (curType.bal && session.available != null && n > session.available) return show("رصيدك المتاح " + session.available + " يوم بس", "err");
   }
   $("rSend").disabled = true; show("جاري الإرسال...", "info");
@@ -1230,7 +1231,7 @@ function hm(min){
   return Math.floor(min / 60) + ":" + ("0" + (min % 60)).slice(-2);
 }
 const lateTxt = m => (m >= 60 ? Math.floor(m / 60) + " س " + (m % 60 ? (m % 60) + " د" : "") : m + " د");
-const AST = { "حضور": "yes", "تأخير": "", "غياب": "no", "إجازة": "vio", "مأمورية": "blue", "إجازة أسبوعية": "gray", "لم يسجّل بعد": "gray", "حاضر": "yes", "متأخر": "" };
+const AST = { "حضور": "yes", "تأخير": "", "غياب": "no", "إجازة": "vio", "مأمورية": "blue", "إجازة أسبوعية": "gray", "إجازة رسمية": "gray", "لم يسجّل بعد": "gray", "حاضر": "yes", "متأخر": "" };
 async function loadAtt(){
   const tok = ++attTok;
   const p = attMonth.split("-");
@@ -1250,7 +1251,7 @@ async function loadAtt(){
       const wd = dt.toLocaleDateString("ar-EG", { weekday: "long" });
       return '<div class="atr"><div class="d"><b>' + wd + '</b><small>' + x.date.replace(/-/g, "/") + '</small></div>' +
         '<span>' + (x.inTime || "-") + '</span><span>' + (x.outTime || "-") + '</span><span>' + hm(x.minutes) + '</span>' +
-        '<span class="sc"><span class="badge bd ' + (AST[x.status] || "gray") + '">' + esc(x.status) + '</span>' + (x.lateMin ? '<small class="lt">' + lateTxt(x.lateMin) + '</small>' : '') + '</span></div>';
+        '<span class="sc"><span class="badge bd ' + (AST[x.status] || "gray") + '">' + esc(x.status) + '</span>' + (x.lateMin ? '<small class="lt">' + lateTxt(x.lateMin) + '</small>' : (x.holiday ? '<small class="lt" style="color:#475569">' + esc(x.holiday) + '</small>' : '')) + '</span></div>';
     }).join("") : '<div class="empty" style="margin:0;border-radius:0">مفيش تسجيلات في الشهر ده</div>';
   } catch (e) {
     if (tok !== attTok) return;
@@ -1440,7 +1441,9 @@ const oST = {
   mission: ["مأمورية", "#e3edff", "#2f6fe0"], leave: ["إجازة", "#f0eaff", "#6d3fd1"], off: ["إجازة أسبوعية", "#eef1f6", "#6b7a99"]
 };
 const oGrp = { present: ["present", "late"], absent: ["absent"], mission: ["mission"], leave: ["leave"], late: ["late"] };
-const oBadge = k => { const x = oST[k] || oST.off; return '<span class="obd" style="background:' + x[1] + ';color:' + x[2] + '">' + x[0] + '</span>'; };
+const offMsg = () => !dash ? "" : dash.isWeekend ? "النهارده إجازة أسبوعية، مفيش غياب بيتحسب." :
+  dash.isHoliday ? "النهارده إجازة رسمية" + (dash.holidayName ? " (" + dash.holidayName + ")" : "") + "، مفيش غياب بيتحسب." : "";
+const oBadge = k => { let x = oST[k] || oST.off; if (!oST[k] || k === "off") { if (dash && dash.isHoliday && !dash.isWeekend) x = ["إجازة رسمية", x[1], x[2]]; } return '<span class="obd" style="background:' + x[1] + ';color:' + x[2] + '">' + x[0] + '</span>'; };
 const oPeople = k => (dash.people || []).filter(p => k === "all" || (oGrp[k] || [k]).indexOf(p.status) !== -1);
 const oPend = () => dash.pendingManager + dash.pendingHR;
 const oFollow = () => oPend() + oPeople("late").length + dash.rejected;
@@ -1474,7 +1477,7 @@ function renderOwner(){
   if (isPhone()) { renderPhone(); return; }
   $("pNav").classList.add("hidden");
   $("oSub").textContent = "صاحب الشركة - " + dash.total + " موظف";
-  $("oWeekend").classList.toggle("hidden", !dash.isWeekend);
+  $("oWeekend").textContent = offMsg(); $("oWeekend").classList.toggle("hidden", !offMsg());
   const n = oFollow();
   $("oBellN").textContent = n; $("oBellN").classList.toggle("hidden", !n);
   const items = [["home", "الرئيسية", "home"], ["emps", "الموظفون", "user"], ["reqs", "الطلبات", "file"], ["reports", "التقارير", "chart"], ["alerts", "الإشعارات", "bell"]];
@@ -1633,7 +1636,7 @@ function pHome(){
     '<div class="gjob">' + ic("user", 16) + ' موظفو الشركة: ' + t + '</div>' +
     '<div class="gdate"><span class="pdate">' + ic("cal", 18) + '<span>' + esc(dtxt) + '</span><input type="date" value="' + esc(dash.day) + '" onchange="$(\'oDate\').value=this.value;loadDash()"></span>' +
     '<button class="bell" style="margin-inline-start:auto" onclick="loadDash()" aria-label="تحديث">' + ic("refresh", 20) + '</button></div></div>' +
-    '<div class="psheet">' + (dash.isWeekend ? '<div class="oweek" style="margin:0 0 12px">النهارده إجازة أسبوعية، مفيش غياب بيتحسب.</div>' : '') +
+    '<div class="psheet">' + (offMsg() ? '<div class="oweek" style="margin:0 0 12px">' + esc(offMsg()) + '</div>' : '') +
     '<h3>ملخص اليوم</h3><div class="otiles">' +
     tile("pGo('emps','present')", "حاضر", "user", "#dff5e8", "#14804a", pres) +
     tile("pGo('emps','absent')", "غائب", "user", "#fde4e4", "#c43434", abs) +
@@ -1726,7 +1729,7 @@ window.matchMedia("(max-width:899px)").addEventListener("change", () => { if (da
 
 // ===== التقارير (HR + صاحب الشركة) =====
 const rep = { type: "company", month: new Date().toLocaleDateString("en-CA").slice(0, 7), emp: "", q: "", emps: null, listing: false, data: null, loading: false, err: "", lastKey: "", tok: 0, cache: {} };
-const RSTAT = { "حضور": ["#ddf5ea", "#14804a"], "تأخير": ["#fef3c7", "#92400e"], "غياب": ["#fde2e2", "#c43434"], "إجازة": ["#efe9ff", "#6d3fd1"], "مأمورية": ["#e0f2fe", "#075985"], "إجازة أسبوعية": ["#f1f5f9", "#475569"], "لم يسجّل بعد": ["#f1f5f9", "#475569"] };
+const RSTAT = { "حضور": ["#ddf5ea", "#14804a"], "تأخير": ["#fef3c7", "#92400e"], "غياب": ["#fde2e2", "#c43434"], "إجازة": ["#efe9ff", "#6d3fd1"], "مأمورية": ["#e0f2fe", "#075985"], "إجازة أسبوعية": ["#f1f5f9", "#475569"], "إجازة رسمية": ["#f1f5f9", "#475569"], "لم يسجّل بعد": ["#f1f5f9", "#475569"] };
 const repHM = m => Math.floor(m / 60) + ":" + ("0" + (m % 60)).slice(-2);
 const repKey = () => rep.type + "|" + rep.month + "|" + (rep.type === "employee" ? rep.emp : "");
 const repReady = () => /^\d{4}-\d{2}$/.test(rep.month) && (rep.type === "company" || !!rep.emp);
